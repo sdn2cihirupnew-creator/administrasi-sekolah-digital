@@ -75,6 +75,7 @@
 <button id="bukuNav" class="nav-button" onclick="showBukuInduk(this)"><span class="nav-icon">📖</span><span class="nav-text">Buku Induk</span><span class="nav-badge ready">AKTIF</span></button><button id="nilaiKelasNav" class="nav-button" onclick="showNilaiKelas(this)"><span class="nav-icon">📊</span><span class="nav-text">Nilai Per Kelas</span><span class="nav-badge ready">AKTIF</span></button>
 <button id="klapperNav" class="nav-button" onclick="showKlapper(this)"><span class="nav-icon">🔤</span><span class="nav-text">Buku Klapper</span><span class="nav-badge ready">AKTIF</span></button>
 <button id="kehadiranNav" class="nav-button" onclick="showKehadiran(this)"><span class="nav-icon">🕘</span><span class="nav-text">Kehadiran</span><span class="nav-badge ready">AKTIF</span></button>
+<button id="mutasiNav" class="nav-button" onclick="showMutasi(this)"><span class="nav-icon">🔄</span><span class="nav-text">Mutasi</span><span class="nav-badge ready">AKTIF</span></button>
 <button class="nav-button" onclick="comingSoon('Mutasi Siswa')"><span class="nav-icon">🔄</span><span class="nav-text">Mutasi</span><span class="nav-badge">SEGERA</span></button>
 <button class="nav-button" onclick="comingSoon('Kenaikan Kelas')"><span class="nav-icon">📈</span><span class="nav-text">Kenaikan Kelas</span><span class="nav-badge">SEGERA</span></button>
 <button class="nav-button" onclick="comingSoon('Kelulusan')"><span class="nav-icon">🎓</span><span class="nav-text">Kelulusan</span><span class="nav-badge">SEGERA</span></button>
@@ -199,7 +200,75 @@
     </div>
   </div>
 </section>
-<section id="kehadiranPanel" class="kehadiran-panel"><div class="card"><div class="card-body"><div class="kh-toolbar"><div><h2>🕘 Kehadiran Peserta Didik</h2><p>Catat kehadiran harian per kelas. H = Hadir, I = Izin, S = Sakit, A = Alpa.</p></div><div class="kh-actions"><button class="btn btn-light" onclick="printKehadiran()">🖨️ Cetak</button><button class="btn btn-primary" onclick="loadKehadiranMeta()">↻ Muat Data</button></div></div><div class="kh-grid"><div class="kh-field"><label>Tanggal</label><input id="khTanggal" type="date"></div><div class="kh-field"><label>Kelas</label><select id="khKelas" onchange="loadKehadiranList()"><option value="">Memuat kelas...</option></select></div><div class="kh-field"><label>Guru / Wali Kelas</label><input id="khGuru" placeholder="Nama guru"></div><div class="kh-field"><label>Keterangan Umum</label><input id="khCatatanUmum" placeholder="Opsional"></div></div><div class="kh-actions"><button class="btn btn-primary" onclick="loadKehadiranList()">📋 Tampilkan Daftar</button><button class="btn btn-light" onclick="setSemuaKehadiran('H')">✓ Semua Hadir</button><button class="btn btn-light" onclick="setSemuaKehadiran('A')">✕ Semua Alpa</button><button class="btn btn-primary" id="khSaveBtn" onclick="saveKehadiran()">💾 Simpan Kehadiran</button></div><div id="khStatus" class="kh-status">Pilih tanggal dan kelas.</div><div class="kh-summary"><div class="mini"><strong id="khTotal">0</strong><span>Total Siswa</span></div><div class="mini"><strong id="khHadir">0</strong><span>Hadir</span></div><div class="mini"><strong id="khIzin">0</strong><span>Izin</span></div><div class="mini"><strong id="khSakit">0</strong><span>Sakit</span></div><div class="mini"><strong id="khAlpa">0</strong><span>Alpa</span></div></div><div class="kh-table-wrap"><table class="kh-table"><thead><tr><th>No.</th><th>NIS</th><th>NISN</th><th>Nama</th><th>Kelas</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="khTableBody"><tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">Daftar siswa belum dimuat.</td></tr></tbody></table></div><div class="kh-recap"><h3>📊 Rekap Kehadiran</h3><div class="kh-grid"><div class="kh-field"><label>Mulai</label><input id="khMulai" type="date"></div><div class="kh-field"><label>Sampai</label><input id="khSelesai" type="date"></div><div class="kh-field"><label>Kelas Rekap</label><select id="khRekapKelas"><option value="">Semua Kelas</option></select></div><div class="kh-field" style="display:flex;align-items:end"><button class="btn btn-light" style="width:100%" onclick="loadKehadiranRecap()">📊 Tampilkan Rekap</button></div></div><div id="khRecapStatus" class="kh-status"></div><div class="kh-table-wrap"><table class="kh-table"><thead><tr><th>No.</th><th>NIS</th><th>Nama</th><th>Kelas</th><th>H</th><th>I</th><th>S</th><th>A</th><th>Total Tercatat</th></tr></thead><tbody id="khRecapBody"><tr><td colspan="9" style="text-align:center;padding:25px;color:var(--muted)">Belum ada rekap.</td></tr></tbody></table></div></div></div></div></section><section id="nilaiKelasPanel" class="nilai-kelas-panel">
+<section id="kehadiranPanel" class="kehadiran-panel"><div class="card"><div class="card-body"><div class="kh-toolbar"><div><h2>🕘 Kehadiran Peserta Didik</h2><p>Catat kehadiran harian per kelas. H = Hadir, I = Izin, S = Sakit, A = Alpa.</p></div><div class="kh-actions"><button class="btn btn-light" onclick="printKehadiran()">🖨️ Cetak</button><button class="btn btn-primary" onclick="loadKehadiranMeta()">↻ Muat Data</button></div></div><div class="kh-grid"><div class="kh-field"><label>Tanggal</label><input id="khTanggal" type="date"></div><div class="kh-field"><label>Kelas</label><select id="khKelas" onchange="loadKehadiranList()"><option value="">Memuat kelas...</option></select></div><div class="kh-field"><label>Guru / Wali Kelas</label><input id="khGuru" placeholder="Nama guru"></div><div class="kh-field"><label>Keterangan Umum</label><input id="khCatatanUmum" placeholder="Opsional"></div></div><div class="kh-actions"><button class="btn btn-primary" onclick="loadKehadiranList()">📋 Tampilkan Daftar</button><button class="btn btn-light" onclick="setSemuaKehadiran('H')">✓ Semua Hadir</button><button class="btn btn-light" onclick="setSemuaKehadiran('A')">✕ Semua Alpa</button><button class="btn btn-primary" id="khSaveBtn" onclick="saveKehadiran()">💾 Simpan Kehadiran</button></div><div id="khStatus" class="kh-status">Pilih tanggal dan kelas.</div><div class="kh-summary"><div class="mini"><strong id="khTotal">0</strong><span>Total Siswa</span></div><div class="mini"><strong id="khHadir">0</strong><span>Hadir</span></div><div class="mini"><strong id="khIzin">0</strong><span>Izin</span></div><div class="mini"><strong id="khSakit">0</strong><span>Sakit</span></div><div class="mini"><strong id="khAlpa">0</strong><span>Alpa</span></div></div><div class="kh-table-wrap"><table class="kh-table"><thead><tr><th>No.</th><th>NIS</th><th>NISN</th><th>Nama</th><th>Kelas</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="khTableBody"><tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">Daftar siswa belum dimuat.</td></tr></tbody></table></div><div class="kh-recap"><h3>📊 Rekap Kehadiran</h3><div class="kh-grid"><div class="kh-field"><label>Mulai</label><input id="khMulai" type="date"></div><div class="kh-field"><label>Sampai</label><input id="khSelesai" type="date"></div><div class="kh-field"><label>Kelas Rekap</label><select id="khRekapKelas"><option value="">Semua Kelas</option></select></div><div class="kh-field" style="display:flex;align-items:end"><button class="btn btn-light" style="width:100%" onclick="loadKehadiranRecap()">📊 Tampilkan Rekap</button></div></div><div id="khRecapStatus" class="kh-status"></div><div class="kh-table-wrap"><table class="kh-table"><thead><tr><th>No.</th><th>NIS</th><th>Nama</th><th>Kelas</th><th>H</th><th>I</th><th>S</th><th>A</th><th>Total Tercatat</th></tr></thead><tbody id="khRecapBody"><tr><td colspan="9" style="text-align:center;padding:25px;color:var(--muted)">Belum ada rekap.</td></tr></tbody></table></div></div></div></div></section>
+<section id="mutasiPanel" class="mutasi-panel">
+  <div class="card"><div class="card-body">
+    <div class="kh-toolbar">
+      <div><h2>🔄 Mutasi Peserta Didik</h2>
+      <p>Catat siswa masuk, keluar, pindah sekolah, serta riwayat mutasi secara terstruktur.</p></div>
+      <div class="kh-actions">
+        <button class="btn btn-light" onclick="loadMutasi()">↻ Muat Data</button>
+        <button class="btn btn-primary" onclick="openMutasiForm()">＋ Tambah Mutasi</button>
+      </div>
+    </div>
+
+    <div class="kh-grid">
+      <div class="kh-field"><label>Pencarian</label><input id="mutasiQ" placeholder="NIS / nama / sekolah"></div>
+      <div class="kh-field"><label>Jenis</label>
+        <select id="mutasiFilterJenis">
+          <option value="">Semua Jenis</option><option value="MASUK">Masuk</option><option value="KELUAR">Keluar</option>
+        </select>
+      </div>
+      <div class="kh-field"><label>Mulai</label><input id="mutasiMulai" type="date"></div>
+      <div class="kh-field"><label>Sampai</label><input id="mutasiSelesai" type="date"></div>
+    </div>
+    <div class="kh-actions">
+      <button class="btn btn-primary" onclick="loadMutasi()">🔎 Tampilkan</button>
+      <button class="btn btn-light" onclick="printMutasi()">🖨️ Cetak</button>
+    </div>
+    <div id="mutasiStatus" class="kh-status">Memuat data mutasi...</div>
+    <div class="kh-table-wrap">
+      <table class="kh-table"><thead><tr>
+        <th>No.</th><th>Tanggal</th><th>NIS</th><th>Nama</th><th>Jenis</th>
+        <th>Kelas</th><th>Asal/Tujuan</th><th>No. Surat</th><th>Aksi</th>
+      </tr></thead><tbody id="mutasiBody">
+        <tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted)">Belum ada data.</td></tr>
+      </tbody></table>
+    </div>
+  </div></div>
+</section>
+
+<div id="mutasiModal" class="modal-overlay" style="display:none">
+  <div class="modal-card" style="max-width:900px;width:94%">
+    <div class="modal-header"><h2 id="mutasiModalTitle">Tambah Mutasi</h2><button class="modal-close" onclick="closeMutasiForm()">×</button></div>
+    <div class="modal-body">
+      <div class="kh-grid">
+        <div class="kh-field"><label>Tanggal Mutasi *</label><input id="mtTanggal" type="date"></div>
+        <div class="kh-field"><label>Jenis Mutasi *</label>
+          <select id="mtJenis" onchange="toggleMutasiFields()"><option value="KELUAR">KELUAR</option><option value="MASUK">MASUK</option></select>
+        </div>
+        <div class="kh-field"><label>Peserta Didik</label><select id="mtNis" onchange="fillMutasiStudent()"><option value="">Pilih siswa...</option></select></div>
+        <div class="kh-field"><label>NIS</label><input id="mtNisManual" placeholder="Isi NIS jika siswa masuk belum ada di SISWA"></div>
+        <div class="kh-field"><label>Nama Lengkap *</label><input id="mtNama" placeholder="Nama peserta didik"></div>
+        <div class="kh-field"><label>Kelas Asal</label><input id="mtKelasAsal"></div>
+        <div class="kh-field"><label>Kelas Tujuan</label><input id="mtKelasTujuan"></div>
+        <div class="kh-field"><label>Asal Sekolah</label><input id="mtAsal" placeholder="Sekolah asal"></div>
+        <div class="kh-field"><label>Tujuan Sekolah</label><input id="mtTujuan" placeholder="Sekolah tujuan"></div>
+        <div class="kh-field"><label>Nomor Surat</label><input id="mtNoSurat"></div>
+        <div class="kh-field"><label>Tanggal Surat</label><input id="mtTanggalSurat" type="date"></div>
+        <div class="kh-field"><label>Alasan Mutasi</label><input id="mtAlasan"></div>
+        <div class="kh-field" style="grid-column:1/-1"><label>Keterangan</label><textarea id="mtKeterangan" rows="3"></textarea></div>
+      </div>
+      <div id="mtHint" class="kh-status">Untuk mutasi keluar, pilih siswa dari daftar. Untuk mutasi masuk, NIS dapat diisi manual jika belum terdaftar.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-light" onclick="closeMutasiForm()">Batal</button>
+      <button class="btn btn-primary" id="mtSaveBtn" onclick="saveMutasi()">💾 Simpan Mutasi</button>
+    </div>
+  </div>
+</div>
+
+<section id="nilaiKelasPanel" class="nilai-kelas-panel">
   <div class="card">
     <div class="card-body">
       <div class="nk-toolbar">
@@ -649,6 +718,164 @@ function collectNilaiSemesterDraft(){const sem=selectedNilaiSemester,d=nilaiDraf
 function switchNilaiSemester(sem){collectNilaiSemesterDraft();selectedNilaiSemester=Number(sem);renderNilaiTabs();renderNilaiSemester(selectedNilaiSemester)}
 function renderNilaiSemester(sem){const body=$('nilaiSemesterBody');if(!body)return;const d=nilaiDrafts[sem]||{TAHUN_PELAJARAN:'',KELAS:String(Math.ceil(sem/2)),FASE:Math.ceil(sem/2)<=2?'A':Math.ceil(sem/2)<=4?'B':'C',KURIKULUM:'Kurikulum Merdeka',SEMESTER_JENIS:sem%2?'GANJIL':'GENAP',rows:nilaiDefaultMapel.map(m=>({MAPEL:m,NILAI_AKHIR:'',CAPAIAN_KOMPETENSI:'',GURU:''}))};nilaiDrafts[sem]=d;const meta=nilaiMeta.find(m=>Number(m.semester)===sem)||{};body.innerHTML=`<div class="nilai-meta"><div class="field"><label>Tahun Pelajaran</label><input id="nilaiTP" placeholder="2025/2026" value="${escapeHtml(d.TAHUN_PELAJARAN)}"></div><div class="field"><label>Kelas</label><input id="nilaiKelas" value="${escapeHtml(d.KELAS||meta.kelas||'')}"></div><div class="field"><label>Fase</label><select id="nilaiFase"><option value="A" ${d.FASE==='A'?'selected':''}>A</option><option value="B" ${d.FASE==='B'?'selected':''}>B</option><option value="C" ${d.FASE==='C'?'selected':''}>C</option></select></div><div class="field"><label>Kurikulum</label><input id="nilaiKurikulum" value="${escapeHtml(d.KURIKULUM||'Kurikulum Merdeka')}"></div></div><div class="nilai-meta"><div class="field"><label>Jenis Semester</label><select id="nilaiJenis"><option value="GANJIL" ${d.SEMESTER_JENIS==='GANJIL'?'selected':''}>Ganjil</option><option value="GENAP" ${d.SEMESTER_JENIS==='GENAP'?'selected':''}>Genap</option></select></div><div class="field"><label>Urutan Buku Induk</label><input value="S${sem} · Kelas ${escapeHtml(d.KELAS||meta.kelas||'')} · Fase ${escapeHtml(d.FASE||meta.fase||'')}" disabled></div></div><div class="nilai-table-wrap"><table class="nilai-table"><thead><tr><th>No</th><th>Mata Pelajaran</th><th>Nilai Akhir</th><th>Capaian Kompetensi</th><th>Guru</th></tr></thead><tbody>${(d.rows||[]).map((r,i)=>`<tr><td style="text-align:center">${i+1}</td><td><strong>${escapeHtml(r.MAPEL)}</strong></td><td><input id="nilaiScore_${i}" type="number" min="0" max="100" step="0.01" value="${escapeHtml(r.NILAI_AKHIR)}" placeholder="0–100"></td><td><textarea id="nilaiCapaian_${i}" placeholder="Capaian kompetensi peserta didik...">${escapeHtml(r.CAPAIAN_KOMPETENSI)}</textarea></td><td><input id="nilaiGuru_${i}" value="${escapeHtml(r.GURU)}" placeholder="Nama guru"></td></tr>`).join('')}</tbody></table></div><div class="nilai-actions"><div class="nilai-help">Nilai Akhir menggunakan skala 0–100. KKM tidak dijadikan kolom wajib agar struktur mengikuti pelaporan Kurikulum Merdeka. Riwayat S1–S12 tersimpan di sheet NILAI.</div><div><span id="nilaiSaveStatus" class="nilai-save-status"></span> <button type="button" class="btn btn-primary" onclick="saveNilaiSemester()">💾 Simpan S${sem}</button></div></div>`}
 async function saveNilaiSemester(){if(!selectedBukuNis){showToast('Pilih peserta didik terlebih dahulu.');return}collectNilaiSemesterDraft();const d=nilaiDrafts[selectedNilaiSemester];const rows=(d.rows||[]).map(r=>({ID_NILAI:r.ID_NILAI||'',NIS:selectedBukuNis,TAHUN_PELAJARAN:d.TAHUN_PELAJARAN,SEMESTER:selectedNilaiSemester,SEMESTER_JENIS:d.SEMESTER_JENIS,KELAS:d.KELAS,FASE:d.FASE,KURIKULUM:d.KURIKULUM,MAPEL:r.MAPEL,NILAI_AKHIR:r.NILAI_AKHIR,CAPAIAN_KOMPETENSI:r.CAPAIAN_KOMPETENSI,GURU:r.GURU}));const btn=document.querySelector('#nilaiSemesterBody .btn-primary');if(btn){btn.disabled=true;btn.textContent='MENYIMPAN...'}try{const r=await callApi({action:'nilaiBulkSave',sessionToken,nis:selectedBukuNis,rows});if(!r?.success){showToast(r?.message||'Nilai gagal disimpan.');return}showToast('Rekam nilai S'+selectedNilaiSemester+' berhasil disimpan.');await loadNilaiForBuku(selectedBukuNis);selectedNilaiSemester=Number(rows[0]?.SEMESTER||selectedNilaiSemester);renderNilaiTabs();renderNilaiSemester(selectedNilaiSemester)}catch(e){console.error(e);showToast('Tidak dapat menyimpan rekam nilai.')}finally{const b=document.querySelector('#nilaiSemesterBody .btn-primary');if(b){b.disabled=false;b.textContent='💾 Simpan S'+selectedNilaiSemester}}}
+
+
+let mutasiRowsCache = [];
+let mutasiStudentsCache = [];
+let mutasiEditingId = '';
+
+function showMutasi(btn){
+  setActiveNav(btn||$('mutasiNav'));
+  document.querySelector('.page-title').textContent='Mutasi Peserta Didik';
+  $('dashboardHome')?.classList.add('hidden');
+  $('studentPanel')?.classList.remove('show');
+  $('bukuPanel')?.classList.remove('show');
+  $('nilaiKelasPanel')?.classList.remove('show');
+  $('klapperPanel')?.classList.remove('show');
+  $('kehadiranPanel')?.classList.remove('show');
+  $('mutasiPanel')?.classList.add('show');
+  $('sidebar')?.classList.remove('open');
+  const t=$('mutasiMulai'),e=$('mutasiSelesai');
+  const today=new Date().toISOString().slice(0,10);
+  if(t&&!t.value)t.value='';
+  if(e&&!e.value)e.value='';
+  loadMutasi();
+}
+
+async function loadMutasi(){
+  if(!sessionToken){forceLogout();return}
+  try{
+    $('mutasiStatus').textContent='⏳ Memuat data mutasi...';
+    const r=await callApi({
+      action:'mutasiList',sessionToken,
+      q:$('mutasiQ')?.value||'',
+      jenis:$('mutasiFilterJenis')?.value||'',
+      mulai:$('mutasiMulai')?.value||'',
+      selesai:$('mutasiSelesai')?.value||''
+    });
+    if(!r?.success){showToast(r?.message||'Data mutasi gagal dimuat.');return}
+    mutasiRowsCache=r.data?.rows||[];
+    renderMutasiTable();
+    $('mutasiStatus').textContent=`${mutasiRowsCache.length} data mutasi ditemukan.`;
+    await loadMutasiStudents();
+  }catch(e){console.error(e);showToast('Gagal memuat data mutasi.')}
+}
+
+async function loadMutasiStudents(){
+  try{
+    const r=await callApi({action:'mutasiMeta',sessionToken});
+    if(r?.success) mutasiStudentsCache=r.data?.students||[];
+  }catch(e){console.error(e)}
+}
+
+function renderMutasiTable(){
+  const b=$('mutasiBody'); if(!b)return;
+  if(!mutasiRowsCache.length){
+    b.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted)">Belum ada data mutasi.</td></tr>';return;
+  }
+  b.innerHTML=mutasiRowsCache.map((x,i)=>{
+    const jenis=String(x.JENIS_MUTASI||'').toUpperCase();
+    const arah=jenis==='MASUK'?(x.ASAL_SEKOLAH||'—'):(x.TUJUAN_SEKOLAH||'—');
+    const kelas=jenis==='MASUK'?(x.KELAS_TUJUAN||'—'):(x.KELAS_ASAL||'—');
+    return `<tr>
+      <td>${i+1}</td><td>${escapeHtml(x.TANGGAL||'')}</td><td>${escapeHtml(x.NIS||'')}</td>
+      <td><strong>${escapeHtml(x.NAMA||'')}</strong></td>
+      <td>${escapeHtml(jenis)}</td><td>${escapeHtml(kelas)}</td>
+      <td>${escapeHtml(arah)}</td><td>${escapeHtml(x.NOMOR_SURAT||'')}</td>
+      <td><button class="icon-btn" onclick="editMutasi('${encodeURIComponent(x.ID_MUTASI||'')}')">Edit</button>
+      <button class="icon-btn" onclick="deleteMutasi('${encodeURIComponent(x.ID_MUTASI||'')}')">Hapus</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function openMutasiForm(id=''){
+  mutasiEditingId=id?decodeURIComponent(id):'';
+  $('mutasiModal').style.display='flex';
+  $('mutasiModalTitle').textContent=mutasiEditingId?'Edit Mutasi':'Tambah Mutasi';
+  const today=new Date().toISOString().slice(0,10);
+  $('mtTanggal').value=today;
+  $('mtJenis').value='KELUAR';
+  ['mtNis','mtNisManual','mtNama','mtKelasAsal','mtKelasTujuan','mtAsal','mtTujuan','mtNoSurat','mtTanggalSurat','mtAlasan','mtKeterangan'].forEach(id=>{if($(id))$(id).value=''});
+  fillMutasiStudentOptions();
+  if(mutasiEditingId){
+    const x=mutasiRowsCache.find(r=>String(r.ID_MUTASI)===mutasiEditingId);
+    if(x){
+      $('mtTanggal').value=x.TANGGAL||today;$('mtJenis').value=x.JENIS_MUTASI||'KELUAR';
+      $('mtNisManual').value=x.NIS||'';$('mtNama').value=x.NAMA||'';
+      $('mtKelasAsal').value=x.KELAS_ASAL||'';$('mtKelasTujuan').value=x.KELAS_TUJUAN||'';
+      $('mtAsal').value=x.ASAL_SEKOLAH||'';$('mtTujuan').value=x.TUJUAN_SEKOLAH||'';
+      $('mtNoSurat').value=x.NOMOR_SURAT||'';$('mtTanggalSurat').value=x.TANGGAL_SURAT||'';
+      $('mtAlasan').value=x.ALASAN||'';$('mtKeterangan').value=x.KETERANGAN||'';
+      $('mtNis').value=x.NIS||'';
+    }
+  }
+  toggleMutasiFields();
+}
+
+function closeMutasiForm(){$('mutasiModal').style.display='none';mutasiEditingId='';}
+
+function fillMutasiStudentOptions(){
+  const s=$('mtNis');if(!s)return;
+  s.innerHTML='<option value="">Pilih siswa...</option>'+mutasiStudentsCache.map(x=>`<option value="${escapeHtml(x.NIS)}">${escapeHtml(x.NIS)} — ${escapeHtml(x.NAMA)} (Kelas ${escapeHtml(x.KELAS||'—')})</option>`).join('');
+}
+
+function fillMutasiStudent(){
+  const nis=$('mtNis')?.value;
+  const x=mutasiStudentsCache.find(s=>String(s.NIS)===String(nis));
+  if(!x)return;
+  $('mtNisManual').value=x.NIS||'';
+  $('mtNama').value=x.NAMA||'';
+  $('mtKelasAsal').value=x.KELAS||'';
+  $('mtKelasTujuan').value='';
+}
+
+function toggleMutasiFields(){
+  const jenis=$('mtJenis')?.value;
+  $('mtHint').textContent=jenis==='MASUK'
+    ? 'Mutasi MASUK: isi sekolah asal. Jika siswa belum ada di SISWA, NIS dapat diisi manual; pencatatan mutasi tidak menghapus riwayat.'
+    : 'Mutasi KELUAR: pilih siswa dari SISWA, isi sekolah tujuan dan nomor surat. Data mutasi disimpan sebagai riwayat.';
+}
+
+async function saveMutasi(){
+  const nama=$('mtNama')?.value.trim(), nis=$('mtNisManual')?.value.trim(), jenis=$('mtJenis')?.value;
+  if(!nama||!nis||!jenis){showToast('NIS, nama, dan jenis mutasi wajib diisi.');return}
+  const payload={
+    ID_MUTASI:mutasiEditingId,TANGGAL:$('mtTanggal').value,JENIS_MUTASI:jenis,NIS:nis,NAMA:nama,
+    KELAS_ASAL:$('mtKelasAsal').value.trim(),KELAS_TUJUAN:$('mtKelasTujuan').value.trim(),
+    ASAL_SEKOLAH:$('mtAsal').value.trim(),TUJUAN_SEKOLAH:$('mtTujuan').value.trim(),
+    NOMOR_SURAT:$('mtNoSurat').value.trim(),TANGGAL_SURAT:$('mtTanggalSurat').value,
+    ALASAN:$('mtAlasan').value.trim(),KETERANGAN:$('mtKeterangan').value.trim()
+  };
+  const btn=$('mtSaveBtn');if(btn){btn.disabled=true;btn.textContent='MENYIMPAN...'}
+  try{
+    const r=await callApi({action:'mutasiSave',sessionToken,data:payload});
+    if(!r?.success){showToast(r?.message||'Mutasi gagal disimpan.');return}
+    showToast(r.message||'Mutasi berhasil disimpan.');closeMutasiForm();await loadMutasi();
+  }catch(e){console.error(e);showToast('Gagal menyimpan mutasi.')}
+  finally{if(btn){btn.disabled=false;btn.textContent='💾 Simpan Mutasi'}}
+}
+
+function editMutasi(id){openMutasiForm(id)}
+
+async function deleteMutasi(id){
+  const real=decodeURIComponent(id);
+  const x=mutasiRowsCache.find(r=>String(r.ID_MUTASI)===real);
+  if(!x)return;
+  if(!confirm(`Hapus riwayat mutasi ${x.NAMA||''} (${x.NIS||''})?`))return;
+  try{
+    const r=await callApi({action:'mutasiDelete',sessionToken,idMutasi:real});
+    if(!r?.success){showToast(r?.message||'Mutasi gagal dihapus.');return}
+    showToast(r.message||'Mutasi berhasil dihapus.');await loadMutasi();
+  }catch(e){console.error(e);showToast('Gagal menghapus mutasi.')}
+}
+
+function printMutasi(){
+  const rows=mutasiRowsCache;if(!rows.length){showToast('Tidak ada data untuk dicetak.');return}
+  const body=rows.map((x,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(x.TANGGAL||'')}</td><td>${escapeHtml(x.NIS||'')}</td><td>${escapeHtml(x.NAMA||'')}</td><td>${escapeHtml(x.JENIS_MUTASI||'')}</td><td>${escapeHtml(x.KELAS_ASAL||'')} → ${escapeHtml(x.KELAS_TUJUAN||'')}</td><td>${escapeHtml(x.ASAL_SEKOLAH||'')} → ${escapeHtml(x.TUJUAN_SEKOLAH||'')}</td><td>${escapeHtml(x.NOMOR_SURAT||'')}</td></tr>`).join('');
+  const w=window.open('','_blank');if(!w){showToast('Popup cetak diblokir browser.');return}
+  w.document.write(`<html><head><title>Mutasi Peserta Didik - SDN 2 Cihirup</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:6px;font-size:10px}</style></head><body><h1>BUKU MUTASI PESERTA DIDIK</h1><p>SDN 2 Cihirup</p><table><thead><tr><th>No</th><th>Tanggal</th><th>NIS</th><th>Nama</th><th>Jenis</th><th>Kelas</th><th>Asal / Tujuan</th><th>No. Surat</th></tr></thead><tbody>${body}</tbody></table></body></html>`);
+  w.document.close();w.focus();setTimeout(()=>w.print(),300);
+}
 
 function showKlapper(btn){setActiveNav(btn||$('klapperNav'));document.querySelector('.page-title').textContent='Buku Klapper';$('dashboardHome')?.classList.add('hidden');$('studentPanel').classList.remove('show');$('bukuPanel').classList.remove('show');$('nilaiKelasPanel').classList.remove('show');$('kehadiranPanel')?.classList.remove('show');$('klapperPanel').classList.add('show');$('sidebar').classList.remove('open');loadKlapper()}
 
