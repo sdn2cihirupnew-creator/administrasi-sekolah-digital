@@ -383,7 +383,7 @@ function previewStudentExcel(event){
 }
 async function saveStudentExcelImport(){
   if(!studentExcelValidRows.length){showToast('Belum ada data Excel yang siap diimport.');return}
-  if(String(userRole||'').toUpperCase()!=='ADMIN'){
+  const importRole=String(currentUser?.role||userRole||'').toUpperCase().replace(/[\s\-_\.]+/g,'');if(importRole!=='ADMIN'&&importRole!=='ADMINISTRATOR'){
     showToast('Import Peserta Didik hanya dapat dilakukan oleh ADMIN.');
     return;
   }
