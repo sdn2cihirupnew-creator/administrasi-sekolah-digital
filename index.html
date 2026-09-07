@@ -75,7 +75,7 @@
 <button id="bukuNav" class="nav-button" onclick="showBukuInduk(this)"><span class="nav-icon">📖</span><span class="nav-text">Buku Induk</span><span class="nav-badge ready">AKTIF</span></button><button id="nilaiKelasNav" class="nav-button" onclick="showNilaiKelas(this)"><span class="nav-icon">📊</span><span class="nav-text">Nilai Per Kelas</span><span class="nav-badge ready">AKTIF</span></button>
 <button id="klapperNav" class="nav-button" onclick="showKlapper(this)"><span class="nav-icon">🔤</span><span class="nav-text">Buku Klapper</span><span class="nav-badge ready">AKTIF</span></button>
 <button id="kehadiranNav" class="nav-button" onclick="showKehadiran(this)"><span class="nav-icon">🕘</span><span class="nav-text">Kehadiran</span><span class="nav-badge ready">AKTIF</span></button>
-<button id="mutasiNav" class="nav-button" onclick="showMutasi(this)"><span class="nav-icon">🔄</span><span class="nav-text">Mutasi</span><span class="nav-badge ready">AKTIF</span></button>
+<button id="mutasiNav" class="nav-button" onclick="showMutasi(this)"><span class="nav-icon">🔄</span><span class="nav-text">Mutasi</span><span class="nav-badge ready">AKTIF</span></button><button id="kenaikanKelasNav" class="nav-button" onclick="showKenaikanKelas(this)"><span class="nav-icon">📈</span><span class="nav-text">Kenaikan Kelas</span><span class="nav-badge ready">AKTIF</span></button>
 <button class="nav-button" onclick="comingSoon('Mutasi Siswa')"><span class="nav-icon">🔄</span><span class="nav-text">Mutasi</span><span class="nav-badge">SEGERA</span></button>
 <button class="nav-button" onclick="comingSoon('Kenaikan Kelas')"><span class="nav-icon">📈</span><span class="nav-text">Kenaikan Kelas</span><span class="nav-badge">SEGERA</span></button>
 <button class="nav-button" onclick="comingSoon('Kelulusan')"><span class="nav-icon">🎓</span><span class="nav-text">Kelulusan</span><span class="nav-badge">SEGERA</span></button>
@@ -267,6 +267,44 @@
     </div>
   </div>
 </div>
+
+
+<section id="kenaikanKelasPanel" class="kenaikan-panel">
+  <div class="card"><div class="card-body">
+    <div class="kh-toolbar">
+      <div><h2>📈 Kenaikan Kelas</h2>
+      <p>Proses kenaikan kelas dan riwayat perubahan kelas peserta didik secara terstruktur.</p></div>
+      <div class="kh-actions">
+        <button class="btn btn-light" onclick="loadKenaikanKelas()">↻ Muat Data</button>
+      </div>
+    </div>
+
+    <div class="kh-grid">
+      <div class="kh-field"><label>Tahun Pelajaran</label><input id="kkTahun" value="2026/2027" placeholder="2026/2027"></div>
+      <div class="kh-field"><label>Kelas Asal</label><select id="kkKelasAsal"><option value="">Memuat kelas...</option></select></div>
+      <div class="kh-field"><label>Kelas Tujuan</label><select id="kkKelasTujuan"><option value="">Pilih kelas tujuan...</option></select></div>
+      <div class="kh-field"><label>Status Proses</label><select id="kkStatusFilter"><option value="">Semua</option><option value="BELUM_DIPROSES">Belum Diproses</option><option value="SUDAH_NAIK">Sudah Naik</option><option value="TIDAK_NAIK">Tidak Naik</option></select></div>
+    </div>
+    <div class="kh-actions">
+      <button class="btn btn-primary" onclick="loadKenaikanKelas()">🔎 Tampilkan Siswa</button>
+      <button class="btn btn-light" onclick="selectAllKenaikan(true)">☑️ Pilih Semua</button>
+      <button class="btn btn-light" onclick="selectAllKenaikan(false)">☐ Batal Pilih</button>
+      <button class="btn btn-primary" onclick="prosesKenaikanKelas()">📈 Proses Kenaikan</button>
+    </div>
+    <div id="kkStatus" class="kh-status">Pilih kelas asal untuk menampilkan siswa.</div>
+    <div class="kh-table-wrap">
+      <table class="kh-table"><thead><tr>
+        <th><input type="checkbox" id="kkAll" onchange="selectAllKenaikan(this.checked)"></th>
+        <th>No.</th><th>NIS</th><th>Nama</th><th>Kelas Saat Ini</th><th>Status</th><th>Kelas Tujuan</th>
+      </tr></thead><tbody id="kkBody">
+        <tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">Belum ada data.</td></tr>
+      </tbody></table>
+    </div>
+    <div class="kh-status" style="margin-top:12px">
+      <strong>Catatan:</strong> proses ini menyimpan riwayat kenaikan kelas. Data identitas siswa di <b>SISWA</b> diperbarui ke kelas tujuan hanya untuk siswa yang diproses sebagai <b>SUDAH NAIK</b>.
+    </div>
+  </div></div>
+</section>
 
 <section id="nilaiKelasPanel" class="nilai-kelas-panel">
   <div class="card">
@@ -734,6 +772,7 @@ function showMutasi(btn){
   $('klapperPanel')?.classList.remove('show');
   $('kehadiranPanel')?.classList.remove('show');
   $('mutasiPanel')?.classList.add('show');
+  $('kenaikanKelasPanel')?.classList.remove('show');
   $('sidebar')?.classList.remove('open');
   const t=$('mutasiMulai'),e=$('mutasiSelesai');
   const today=new Date().toISOString().slice(0,10);
@@ -876,6 +915,80 @@ function printMutasi(){
   w.document.write(`<html><head><title>Mutasi Peserta Didik - SDN 2 Cihirup</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:6px;font-size:10px}</style></head><body><h1>BUKU MUTASI PESERTA DIDIK</h1><p>SDN 2 Cihirup</p><table><thead><tr><th>No</th><th>Tanggal</th><th>NIS</th><th>Nama</th><th>Jenis</th><th>Kelas</th><th>Asal / Tujuan</th><th>No. Surat</th></tr></thead><tbody>${body}</tbody></table></body></html>`);
   w.document.close();w.focus();setTimeout(()=>w.print(),300);
 }
+
+
+let kenaikanRowsCache = [];
+let kenaikanClassesCache = [];
+
+function showKenaikanKelas(btn){
+  setActiveNav(btn||$('kenaikanKelasNav'));
+  document.querySelector('.page-title').textContent='Kenaikan Kelas';
+  ['dashboardHome','studentPanel','bukuPanel','nilaiKelasPanel','klapperPanel','kehadiranPanel','mutasiPanel'].forEach(id=>$(id)?.classList.remove('show'));
+  $('kenaikanKelasPanel')?.classList.add('show');
+  $('sidebar')?.classList.remove('open');
+  loadKenaikanKelasMeta();
+}
+
+async function loadKenaikanKelasMeta(){
+  try{
+    const r=await callApi({action:'kenaikanKelasMeta',sessionToken});
+    if(!r?.success){showToast(r?.message||'Metadata kenaikan kelas gagal dimuat.');return}
+    kenaikanClassesCache=r.data?.classes||[];
+    const a=$('kkKelasAsal'),t=$('kkKelasTujuan');
+    if(a)a.innerHTML='<option value="">Pilih kelas asal...</option>'+kenaikanClassesCache.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    if(t)t.innerHTML='<option value="">Pilih kelas tujuan...</option>'+kenaikanClassesCache.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  }catch(e){console.error(e);showToast('Gagal memuat kelas.')}
+}
+
+async function loadKenaikanKelas(){
+  const asal=$('kkKelasAsal')?.value||'';
+  if(!asal){showToast('Pilih kelas asal terlebih dahulu.');return}
+  try{
+    $('kkStatus').textContent='⏳ Memuat siswa...';
+    const r=await callApi({action:'kenaikanKelasList',sessionToken,kelasAsal:asal,tahunPelajaran:$('kkTahun')?.value||'',status:$('kkStatusFilter')?.value||''});
+    if(!r?.success){showToast(r?.message||'Data siswa gagal dimuat.');return}
+    kenaikanRowsCache=r.data?.rows||[];
+    renderKenaikanTable();
+    $('kkStatus').textContent=`${kenaikanRowsCache.length} siswa ditemukan.`;
+  }catch(e){console.error(e);showToast('Gagal memuat data kenaikan kelas.')}
+}
+
+function renderKenaikanTable(){
+  const b=$('kkBody');if(!b)return;
+  if(!kenaikanRowsCache.length){b.innerHTML='<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">Tidak ada siswa pada kelas tersebut.</td></tr>';return}
+  b.innerHTML=kenaikanRowsCache.map((x,i)=>{
+    const st=String(x.STATUS_PROSES||'BELUM_DIPROSES').toUpperCase();
+    const cls=st==='SUDAH_NAIK'?'':'';
+    return `<tr>
+      <td><input type="checkbox" class="kk-check" data-nis="${escapeHtml(x.NIS||'')}" ${st==='SUDAH_NAIK'?'checked':''}></td>
+      <td>${i+1}</td><td>${escapeHtml(x.NIS||'')}</td><td><strong>${escapeHtml(x.NAMA||'')}</strong></td>
+      <td>${escapeHtml(x.KELAS_ASAL||'')}</td><td>${escapeHtml(st)}</td><td>${escapeHtml($('kkKelasTujuan')?.value||'')}</td>
+    </tr>`;
+  }).join('');
+}
+
+function selectAllKenaikan(flag){
+  document.querySelectorAll('.kk-check').forEach(c=>c.checked=!!flag);
+}
+
+async function prosesKenaikanKelas(){
+  const asal=$('kkKelasAsal')?.value||'',tujuan=$('kkKelasTujuan')?.value||'',tahun=$('kkTahun')?.value.trim()||'';
+  if(!asal||!tujuan){showToast('Pilih kelas asal dan kelas tujuan.');return}
+  if(asal===tujuan){showToast('Kelas asal dan tujuan tidak boleh sama.');return}
+  const rows=[...document.querySelectorAll('.kk-check:checked')].map(c=>({NIS:c.dataset.nis}));
+  if(!rows.length){showToast('Pilih minimal satu siswa.');return}
+  if(!confirm(`Proses ${rows.length} siswa dari kelas ${asal} ke kelas ${tujuan}?`))return;
+  try{
+    const r=await callApi({action:'kenaikanKelasProcess',sessionToken,tahunPelajaran:tahun,kelasAsal:asal,kelasTujuan:tujuan,rows});
+    if(!r?.success){showToast(r?.message||'Proses kenaikan gagal.');return}
+    showToast(r.message||'Kenaikan kelas berhasil diproses.');
+    await loadKenaikanKelas();
+  }catch(e){console.error(e);showToast('Gagal memproses kenaikan kelas.')}
+}
+
+document.addEventListener('change',e=>{
+  if(e.target?.id==='kkKelasTujuan' && kenaikanRowsCache.length) renderKenaikanTable();
+});
 
 function showKlapper(btn){setActiveNav(btn||$('klapperNav'));document.querySelector('.page-title').textContent='Buku Klapper';$('dashboardHome')?.classList.add('hidden');$('studentPanel').classList.remove('show');$('bukuPanel').classList.remove('show');$('nilaiKelasPanel').classList.remove('show');$('kehadiranPanel')?.classList.remove('show');$('klapperPanel').classList.add('show');$('sidebar').classList.remove('open');loadKlapper()}
 
