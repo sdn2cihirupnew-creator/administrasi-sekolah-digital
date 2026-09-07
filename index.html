@@ -298,21 +298,21 @@ function normalizeStudent(x){
     JK:o.JK??o.jk??'',
     KELAS:o.KELAS??o.kelas??'',
     AKTIF:o.AKTIF??o.aktif??o.STATUS??o.status??'AKTIF',
-    TEMPAT_LAHIR:o.TEMPAT_LAHIR??o.tempatLahir??'',
-    TANGGAL_LAHIR:o.TANGGAL_LAHIR??o.tanggalLahir??'',
-    NIK:o.NIK??o.nik??'',
-    AGAMA:o.AGAMA??o.agama??'',
-    ANAK_KE:o.ANAK_KE??o.anakKe??'',
-    JUMLAH_SAUDARA:o.JUMLAH_SAUDARA??o.jumlahSaudara??'',
-    NAMA_AYAH:o.NAMA_AYAH??o.namaAyah??'',
-    NAMA_IBU:o.NAMA_IBU??o.namaIbu??'',
-    NAMA_WALI:o.NAMA_WALI??o.namaWali??'',
-    HP_ORTU:o.HP_ORTU??o.hpOrtu??'',
-    PEKERJAAN_ORTU:o.PEKERJAAN_ORTU??o.pekerjaanOrtu??'',
-    ALAMAT:o.ALAMAT??o.alamat??'',
-    DESA:o.DESA??o.desa??'',
-    KECAMATAN:o.KECAMATAN??o.kecamatan??'',
-    KABUPATEN:o.KABUPATEN??o.kabupaten??'',
+    TEMPAT_LAHIR:o.TEMPAT_LAHIR??'',
+    TANGGAL_LAHIR:o.TANGGAL_LAHIR??'',
+    NIK:o.NIK??'',
+    AGAMA:o.AGAMA??'',
+    ANAK_KE:o.ANAK_KE??'',
+    JUMLAH_SAUDARA:o.JUMLAH_SAUDARA??'',
+    NAMA_AYAH:o.NAMA_AYAH??'',
+    NAMA_IBU:o.NAMA_IBU??'',
+    NAMA_WALI:o.NAMA_WALI??'',
+    HP_ORTU:o.HP_ORTU??'',
+    PEKERJAAN_ORTU:o.PEKERJAAN_ORTU??'',
+    ALAMAT:o.ALAMAT??'',
+    DESA:o.DESA??'',
+    KECAMATAN:o.KECAMATAN??'',
+    KABUPATEN:o.KABUPATEN??'',
     ...o
   };
 }
@@ -352,8 +352,8 @@ function renderStudents(rows){
       <td><span class="status-badge ${aktif?'status-active':'status-inactive'}">${aktif?'AKTIF':'NONAKTIF'}</span></td>
       <td><div class="student-actions">
         <button class="icon-btn" onclick="viewStudent('${safe}')">Lihat</button>
-        <button class="icon-btn" onclick="editStudent(${idx})">Edit</button>
-        ${String(currentUser?.role||'').toUpperCase()=='ADMIN'?`<button class="icon-btn" onclick="deleteStudent(${idx})">Hapus</button>`:''}
+        <button class="icon-btn" onclick="editStudentData('${safe}')">Edit</button>
+        ${String(currentUser?.role||'').toUpperCase()=='ADMIN'?`<button class="icon-btn" onclick="deleteStudentData('${safe}')">Hapus</button>`:''}
       </div></td>
     </tr>`;
   }).join('');
@@ -380,7 +380,31 @@ function openStudentForm(student=null){
   $('studentModal').classList.add('show');
   setTimeout(()=>$('fNIS').focus(),100);
 }
-function editStudent(index){openStudentForm(studentsCache[index])}
+function editStudent(index){
+  const student=studentsCache[index];
+  if(!student){showToast('Data peserta didik tidak ditemukan.');return}
+  openStudentForm(student);
+}
+function editStudentData(encoded){
+  try{
+    const student=JSON.parse(decodeURIComponent(encoded));
+    if(!student){showToast('Data peserta didik tidak ditemukan.');return}
+    openStudentForm(student);
+  }catch(e){
+    console.error(e);
+    showToast('Data peserta didik tidak dapat dibaca.');
+  }
+}
+function deleteStudentData(encoded){
+  try{
+    const student=normalizeStudent(JSON.parse(decodeURIComponent(encoded)));
+    if(!student.NIS){showToast('NIS tidak ditemukan.');return}
+    deleteStudentByNis(student.NIS, student.NAMA);
+  }catch(e){
+    console.error(e);
+    showToast('Data peserta didik tidak dapat dibaca.');
+  }
+}
 function closeStudentModal(){$('studentModal').classList.remove('show');editingStudent=null}
 
 async function saveStudent(e){
@@ -400,7 +424,11 @@ async function saveStudent(e){
 async function deleteStudent(index){
   const s=normalizeStudent(studentsCache[index]);
   if(!s.NIS){showToast('NIS tidak ditemukan.');return}
-  if(!confirm(`Hapus data ${s.NAMA} (${s.NIS})?`))return;
+  await deleteStudentByNis(s.NIS, s.NAMA);
+}
+async function deleteStudentByNis(nis, nama){
+  if(!nis){showToast('NIS tidak ditemukan.');return}
+  if(!confirm(`Hapus data ${nama||''} (${nis})?`))return;
   showLoading('Menghapus data peserta didik...');
   try{
     const r=await callApi({action:'studentDelete',sessionToken,nis:s.NIS});
