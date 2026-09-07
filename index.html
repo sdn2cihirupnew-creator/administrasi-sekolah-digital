@@ -72,6 +72,11 @@
   display: block;
 }
 
+
+/* Modul Kesiswaan lanjutan: hanya tampil saat menu dipilih */
+#kelulusanPanel,#prestasiPanel,#alumniPanel{display:none}
+#kelulusanPanel.show,#prestasiPanel.show,#alumniPanel.show{display:block}
+
 </style><style>
 .buku-profile{display:flex;align-items:center;gap:13px}.buku-avatar{width:52px;height:52px;border-radius:14px;background:var(--light);color:var(--primary);display:grid;place-items:center;font-size:21px;font-weight:900;flex:none}.buku-profile>div:nth-child(2){min-width:0}.buku-status{margin-left:auto;background:var(--light);color:var(--primary);border-radius:999px;padding:6px 10px;font-size:9px;font-weight:900;white-space:nowrap}.buku-note{border:1px dashed var(--border);background:#F7FAF9;border-radius:12px;padding:12px 14px;font-size:10px;color:var(--muted);line-height:1.5}.buku-note strong{color:var(--text)}.buku-error{margin:12px 0;padding:12px 14px;border:1px solid #f1c7c7;background:#fff5f5;border-radius:10px;color:#9b2c2c;font-size:11px;line-height:1.5}.buku-success{margin:12px 0;padding:10px 14px;border:1px solid #cce8dc;background:#f3fbf7;border-radius:10px;color:#146c4a;font-size:11px}.buku-debug{margin-top:8px;font-family:Consolas,monospace;font-size:10px;word-break:break-word}
 @media(max-width:600px){.buku-status{margin-left:0}.buku-profile{align-items:flex-start;flex-wrap:wrap}}
@@ -88,9 +93,9 @@
 <button id="kehadiranNav" class="nav-button" onclick="showKehadiran(this)"><span class="nav-icon">🕘</span><span class="nav-text">Kehadiran</span><span class="nav-badge ready">AKTIF</span></button>
 <button id="mutasiNav" class="nav-button" onclick="showMutasi(this)"><span class="nav-icon">🔄</span><span class="nav-text">Mutasi</span><span class="nav-badge ready">AKTIF</span></button><button id="kenaikanKelasNav" class="nav-button" onclick="showKenaikanKelas(this)"><span class="nav-icon">📈</span><span class="nav-text">Kenaikan Kelas</span><span class="nav-badge ready">AKTIF</span></button>
 
-<button class="nav-button" onclick="comingSoon('Kelulusan')"><span class="nav-icon">🎓</span><span class="nav-text">Kelulusan</span><span class="nav-badge">SEGERA</span></button>
-<button class="nav-button" onclick="comingSoon('Prestasi Siswa')"><span class="nav-icon">🏆</span><span class="nav-text">Prestasi</span><span class="nav-badge">SEGERA</span></button>
-<button class="nav-button" onclick="comingSoon('Alumni')"><span class="nav-icon">🧑‍🎓</span><span class="nav-text">Alumni</span><span class="nav-badge">SEGERA</span></button>
+<button id="kelulusanNav" class="nav-button" onclick="showKelulusan(this)"><span class="nav-icon">🎓</span><span class="nav-text">Kelulusan</span><span class="nav-badge ready">AKTIF</span></button>
+<button id="prestasiNav" class="nav-button" onclick="showPrestasi(this)"><span class="nav-icon">🏆</span><span class="nav-text">Prestasi</span><span class="nav-badge ready">AKTIF</span></button>
+<button id="alumniNav" class="nav-button" onclick="showAlumni(this)"><span class="nav-icon">🧑‍🎓</span><span class="nav-text">Alumni</span><span class="nav-badge ready">AKTIF</span></button>
 </div></div>
 <div class="nav-group"><div class="nav-group-head"><span>📬 Administrasi Umum</span><span>⌄</span></div><div class="nav-sub">
 <button class="nav-button" onclick="comingSoon('Surat Masuk')"><span class="nav-icon">📥</span><span class="nav-text">Surat Masuk</span></button><button class="nav-button" onclick="comingSoon('Surat Keluar')"><span class="nav-icon">📤</span><span class="nav-text">Surat Keluar</span></button><button class="nav-button" onclick="comingSoon('Agenda Sekolah')"><span class="nav-icon">📅</span><span class="nav-text">Agenda</span></button><button class="nav-button" onclick="comingSoon('Buku Tamu')"><span class="nav-icon">📒</span><span class="nav-text">Buku Tamu</span></button><button class="nav-button" onclick="comingSoon('Notulen Rapat')"><span class="nav-icon">📝</span><span class="nav-text">Notulen Rapat</span></button>
@@ -316,6 +321,103 @@
   </div></div>
 </section>
 
+
+<section id="kelulusanPanel" class="kelulusan-panel">
+  <div class="card"><div class="card-body">
+    <div class="kh-toolbar"><div><h2>🎓 Kelulusan Peserta Didik</h2><p>Kelola keputusan kelulusan kelas VI dan simpan riwayat kelulusan secara terstruktur.</p></div>
+    <div class="kh-actions"><button class="btn btn-light" onclick="loadKelulusan()">↻ Muat Data</button><button class="btn btn-primary" onclick="openKelulusanForm()">＋ Tambah Kelulusan</button></div></div>
+    <div class="kh-grid">
+      <div class="kh-field"><label>Tahun Pelajaran</label><input id="lTahun" value="2026/2027"></div>
+      <div class="kh-field"><label>Pencarian</label><input id="lQ" placeholder="NIS / NISN / nama"></div>
+      <div class="kh-field"><label>Status</label><select id="lStatusFilter"><option value="">Semua</option><option value="LULUS">LULUS</option><option value="TIDAK LULUS">TIDAK LULUS</option><option value="PROSES">PROSES</option></select></div>
+    </div>
+    <div class="kh-actions"><button class="btn btn-primary" onclick="loadKelulusan()">🔎 Tampilkan</button><button class="btn btn-light" onclick="printKelulusan()">🖨️ Cetak</button></div>
+    <div id="lStatus" class="kh-status">Memuat data kelulusan...</div>
+    <div class="kh-table-wrap"><table class="kh-table"><thead><tr><th>No.</th><th>Tahun</th><th>NIS</th><th>NISN</th><th>Nama</th><th>Kelas</th><th>Status</th><th>No. Ijazah/SKL</th><th>Aksi</th></tr></thead><tbody id="lBody"><tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted)">Belum ada data.</td></tr></tbody></table></div>
+  </div></div>
+</section>
+
+<div id="kelulusanModal" class="modal-overlay" style="display:none"><div class="modal-card" style="max-width:900px;width:94%">
+  <div class="modal-header"><h2 id="lModalTitle">Tambah Kelulusan</h2><button class="modal-close" onclick="closeKelulusanForm()">×</button></div>
+  <div class="modal-body"><div class="kh-grid">
+    <div class="kh-field"><label>Peserta Didik</label><select id="lNis" onchange="fillKelulusanStudent()"><option value="">Pilih siswa...</option></select></div>
+    <div class="kh-field"><label>NIS</label><input id="lNisManual"></div>
+    <div class="kh-field"><label>Nama Lengkap *</label><input id="lNama"></div>
+    <div class="kh-field"><label>NISN</label><input id="lNisn"></div>
+    <div class="kh-field"><label>Kelas</label><input id="lKelas" value="6"></div>
+    <div class="kh-field"><label>Tahun Pelajaran *</label><input id="lTahunForm" value="2026/2027"></div>
+    <div class="kh-field"><label>Status Kelulusan *</label><select id="lStatusForm"><option value="LULUS">LULUS</option><option value="TIDAK LULUS">TIDAK LULUS</option><option value="PROSES">PROSES</option></select></div>
+    <div class="kh-field"><label>Tanggal Kelulusan</label><input id="lTanggal" type="date"></div>
+    <div class="kh-field"><label>No. Ijazah / SKL</label><input id="lNoIjazah"></div>
+    <div class="kh-field"><label>Melanjutkan Ke</label><input id="lLanjut"></div>
+    <div class="kh-field" style="grid-column:1/-1"><label>Keterangan</label><textarea id="lKeterangan" rows="3"></textarea></div>
+  </div></div>
+  <div class="modal-footer"><button class="btn btn-light" onclick="closeKelulusanForm()">Batal</button><button class="btn btn-primary" id="lSaveBtn" onclick="saveKelulusan()">💾 Simpan</button></div>
+</div></div>
+
+<section id="prestasiPanel" class="prestasi-panel">
+  <div class="card"><div class="card-body">
+    <div class="kh-toolbar"><div><h2>🏆 Prestasi Peserta Didik</h2><p>Catat prestasi akademik dan nonakademik peserta didik beserta tingkat dan penyelenggaranya.</p></div>
+    <div class="kh-actions"><button class="btn btn-light" onclick="loadPrestasi()">↻ Muat Data</button><button class="btn btn-primary" onclick="openPrestasiForm()">＋ Tambah Prestasi</button></div></div>
+    <div class="kh-grid">
+      <div class="kh-field"><label>Pencarian</label><input id="pQ" placeholder="NIS / nama / prestasi"></div>
+      <div class="kh-field"><label>Jenis</label><select id="pJenisFilter"><option value="">Semua</option><option value="AKADEMIK">Akademik</option><option value="NONAKADEMIK">Nonakademik</option></select></div>
+      <div class="kh-field"><label>Tingkat</label><select id="pTingkatFilter"><option value="">Semua</option><option>SEKOLAH</option><option>KECAMATAN</option><option>KABUPATEN</option><option>PROVINSI</option><option>NASIONAL</option><option>INTERNASIONAL</option></select></div>
+    </div>
+    <div class="kh-actions"><button class="btn btn-primary" onclick="loadPrestasi()">🔎 Tampilkan</button><button class="btn btn-light" onclick="printPrestasi()">🖨️ Cetak</button></div>
+    <div id="pStatus" class="kh-status">Memuat data prestasi...</div>
+    <div class="kh-table-wrap"><table class="kh-table"><thead><tr><th>No.</th><th>Tanggal</th><th>NIS</th><th>Nama</th><th>Prestasi</th><th>Jenis</th><th>Tingkat</th><th>Peringkat</th><th>Aksi</th></tr></thead><tbody id="pBody"><tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted)">Belum ada data.</td></tr></tbody></table></div>
+  </div></div>
+</section>
+
+<div id="prestasiModal" class="modal-overlay" style="display:none"><div class="modal-card" style="max-width:900px;width:94%">
+  <div class="modal-header"><h2 id="pModalTitle">Tambah Prestasi</h2><button class="modal-close" onclick="closePrestasiForm()">×</button></div>
+  <div class="modal-body"><div class="kh-grid">
+    <div class="kh-field"><label>Peserta Didik *</label><select id="pNis" onchange="fillPrestasiStudent()"><option value="">Pilih siswa...</option></select></div>
+    <div class="kh-field"><label>Nama Lengkap *</label><input id="pNama"></div>
+    <div class="kh-field"><label>Tanggal</label><input id="pTanggal" type="date"></div>
+    <div class="kh-field"><label>Nama Prestasi *</label><input id="pPrestasi" placeholder="Juara 1 Olimpiade..."></div>
+    <div class="kh-field"><label>Jenis</label><select id="pJenis"><option value="AKADEMIK">AKADEMIK</option><option value="NONAKADEMIK">NONAKADEMIK</option></select></div>
+    <div class="kh-field"><label>Tingkat</label><select id="pTingkat"><option>SEKOLAH</option><option>KECAMATAN</option><option>KABUPATEN</option><option>PROVINSI</option><option>NASIONAL</option><option>INTERNASIONAL</option></select></div>
+    <div class="kh-field"><label>Peringkat</label><input id="pPeringkat"></div>
+    <div class="kh-field"><label>Penyelenggara</label><input id="pPenyelenggara"></div>
+    <div class="kh-field"><label>No. Sertifikat</label><input id="pSertifikat"></div>
+    <div class="kh-field" style="grid-column:1/-1"><label>Keterangan</label><textarea id="pKeterangan" rows="3"></textarea></div>
+  </div></div>
+  <div class="modal-footer"><button class="btn btn-light" onclick="closePrestasiForm()">Batal</button><button class="btn btn-primary" id="pSaveBtn" onclick="savePrestasi()">💾 Simpan</button></div>
+</div></div>
+
+<section id="alumniPanel" class="alumni-panel">
+  <div class="card"><div class="card-body">
+    <div class="kh-toolbar"><div><h2>🧑‍🎓 Alumni</h2><p>Kelola data lulusan dan jejak pendidikan setelah lulus dari SDN 2 Cihirup.</p></div>
+    <div class="kh-actions"><button class="btn btn-light" onclick="loadAlumni()">↻ Muat Data</button><button class="btn btn-primary" onclick="openAlumniForm()">＋ Tambah Alumni</button></div></div>
+    <div class="kh-grid">
+      <div class="kh-field"><label>Pencarian</label><input id="aQ" placeholder="NIS / nama / sekolah lanjutan"></div>
+      <div class="kh-field"><label>Tahun Lulus</label><input id="aTahunFilter" placeholder="2026"></div>
+    </div>
+    <div class="kh-actions"><button class="btn btn-primary" onclick="loadAlumni()">🔎 Tampilkan</button><button class="btn btn-light" onclick="printAlumni()">🖨️ Cetak</button></div>
+    <div id="aStatus" class="kh-status">Memuat data alumni...</div>
+    <div class="kh-table-wrap"><table class="kh-table"><thead><tr><th>No.</th><th>Tahun Lulus</th><th>NIS</th><th>NISN</th><th>Nama</th><th>Sekolah Lanjutan</th><th>Kontak</th><th>Aksi</th></tr></thead><tbody id="aBody"><tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted)">Belum ada data.</td></tr></tbody></table></div>
+  </div></div>
+</section>
+
+<div id="alumniModal" class="modal-overlay" style="display:none"><div class="modal-card" style="max-width:900px;width:94%">
+  <div class="modal-header"><h2 id="aModalTitle">Tambah Alumni</h2><button class="modal-close" onclick="closeAlumniForm()">×</button></div>
+  <div class="modal-body"><div class="kh-grid">
+    <div class="kh-field"><label>Peserta Didik</label><select id="aNis" onchange="fillAlumniStudent()"><option value="">Pilih siswa...</option></select></div>
+    <div class="kh-field"><label>NIS *</label><input id="aNisManual"></div>
+    <div class="kh-field"><label>NISN</label><input id="aNisn"></div>
+    <div class="kh-field"><label>Nama Lengkap *</label><input id="aNama"></div>
+    <div class="kh-field"><label>Tahun Lulus *</label><input id="aTahunForm" value="2026"></div>
+    <div class="kh-field"><label>Sekolah Lanjutan</label><input id="aSekolah"></div>
+    <div class="kh-field"><label>Jurusan/Keterangan</label><input id="aJurusan"></div>
+    <div class="kh-field"><label>No. HP/Email</label><input id="aKontak"></div>
+    <div class="kh-field"><label>Alamat Sekarang</label><input id="aAlamat"></div>
+    <div class="kh-field" style="grid-column:1/-1"><label>Keterangan</label><textarea id="aKeterangan" rows="3"></textarea></div>
+  </div></div>
+  <div class="modal-footer"><button class="btn btn-light" onclick="closeAlumniForm()">Batal</button><button class="btn btn-primary" id="aSaveBtn" onclick="saveAlumni()">💾 Simpan</button></div>
+</div></div>
+
 <section id="nilaiKelasPanel" class="nilai-kelas-panel">
   <div class="card">
     <div class="card-body">
@@ -536,6 +638,7 @@ function downloadStudentExcelTemplate(){
   XLSX.writeFile(wb,'TEMPLATE_IMPORT_PESERTA_DIDIK_SDN2_CIHIRUP.xlsx');
 }
 function showStudents(btn){
+  $('kelulusanPanel')?.classList.remove('show'); $('prestasiPanel')?.classList.remove('show'); $('alumniPanel')?.classList.remove('show');
   setActiveNav(btn||$('studentNav'));
   document.querySelector('.page-title').textContent='Peserta Didik';
   $('dashboardHome')?.classList.add('hidden');
@@ -733,6 +836,7 @@ async function deleteStudentByNis(nis, nama){
 let bukuCache=[];let selectedBukuNis='';
 let nilaiCache=[];let nilaiDrafts={};let selectedNilaiSemester=1;let nilaiDefaultMapel=[];let nilaiMeta=[];
 function showBukuInduk(btn){
+  $('kelulusanPanel')?.classList.remove('show'); $('prestasiPanel')?.classList.remove('show'); $('alumniPanel')?.classList.remove('show');
   $('mutasiPanel')?.classList.remove('show'); $('kenaikanKelasPanel')?.classList.remove('show');setActiveNav(btn||$('bukuNav'));document.querySelector('.page-title').textContent='Buku Induk';$('dashboardHome')?.classList.add('hidden');$('studentPanel').classList.remove('show');$('nilaiKelasPanel').classList.remove('show');$('bukuPanel').classList.add('show');$('sidebar').classList.remove('open');loadBukuInduk()}
 async function loadBukuInduk(){if(!sessionToken){forceLogout();return}showLoading('Memuat Buku Induk...');try{const r=await callApi({action:'bukuIndukList',sessionToken});console.log('Buku Induk API:',r);if(!r||r.success!==true){const msg=r?.message||'Server tidak mengembalikan data Buku Induk.';renderBukuError(msg,r);showToast(msg);return}const d=r.data||{};bukuCache=Array.isArray(d.students)?d.students:(Array.isArray(d)?d:(Array.isArray(d.rows)?d.rows:[]));if(!bukuCache.length){renderBukuList([]);$('bukuSheet').innerHTML='<div class="buku-empty"><strong>Data peserta didik belum ditemukan.</strong><br><br>Pastikan sheet SISWA sudah berisi data pada baris setelah header.</div>';return}renderBukuSuccess('Data berhasil dimuat: '+bukuCache.length+' peserta didik.');populateBukuClass();filterBukuInduk();if(selectedBukuNis){const found=bukuCache.find(x=>String(normalizeStudent(x).NIS)===selectedBukuNis);if(found)renderBukuDetail(normalizeStudent(found));}}catch(e){console.error('Buku Induk error:',e);const msg=e?.message||String(e);renderBukuError('Gagal terhubung ke server Buku Induk.',{error:msg});showToast('Gagal memuat Buku Induk.')}finally{hideLoading()}}
 function renderBukuError(msg,raw){$('bukuListBody').innerHTML='<div class="buku-error"><strong>Gagal memuat data.</strong><div class="buku-debug">'+escapeHtml(msg)+'</div>'+(raw?'<div class="buku-debug">Respons: '+escapeHtml(JSON.stringify(raw))+'</div>':'')+'</div>';$('bukuCount').textContent='0'}
@@ -774,6 +878,7 @@ let mutasiStudentsCache = [];
 let mutasiEditingId = '';
 
 function showMutasi(btn){
+  $('kelulusanPanel')?.classList.remove('show'); $('prestasiPanel')?.classList.remove('show'); $('alumniPanel')?.classList.remove('show');
   $('kenaikanKelasPanel')?.classList.remove('show');
   setActiveNav(btn||$('mutasiNav'));
   document.querySelector('.page-title').textContent='Mutasi Peserta Didik';
@@ -933,6 +1038,7 @@ let kenaikanRowsCache = [];
 let kenaikanClassesCache = [];
 
 function showKenaikanKelas(btn){
+  $('kelulusanPanel')?.classList.remove('show'); $('prestasiPanel')?.classList.remove('show'); $('alumniPanel')?.classList.remove('show');
   $('mutasiPanel')?.classList.remove('show');
   setActiveNav(btn||$('kenaikanKelasNav'));
   document.querySelector('.page-title').textContent='Kenaikan Kelas';
@@ -1003,7 +1109,90 @@ document.addEventListener('change',e=>{
   if(e.target?.id==='kkKelasTujuan' && kenaikanRowsCache.length) renderKenaikanTable();
 });
 
+
+let kelulusanRowsCache=[], kelulusanStudentsCache=[], kelulusanEditingId='';
+let prestasiRowsCache=[], prestasiStudentsCache=[], prestasiEditingId='';
+let alumniRowsCache=[], alumniStudentsCache=[], alumniEditingId='';
+
+function hideKesiswaanPanelsExcept(keep){
+  ['studentPanel','bukuPanel','nilaiKelasPanel','klapperPanel','kehadiranPanel','mutasiPanel','kenaikanKelasPanel','kelulusanPanel','prestasiPanel','alumniPanel'].forEach(id=>{
+    if(id!==keep) $(id)?.classList.remove('show');
+  });
+}
+function showKelulusan(btn){
+  setActiveNav(btn||$('kelulusanNav')); document.querySelector('.page-title').textContent='Kelulusan';
+  $('dashboardHome')?.classList.add('hidden'); hideKesiswaanPanelsExcept('kelulusanPanel'); $('kelulusanPanel')?.classList.add('show'); $('sidebar')?.classList.remove('open');
+  loadKelulusanMeta(); loadKelulusan();
+}
+async function loadKelulusanMeta(){
+  try{const r=await callApi({action:'kelulusanMeta',sessionToken});if(r?.success){kelulusanStudentsCache=r.data?.students||[]}}catch(e){console.error(e)}
+}
+async function loadKelulusan(){
+  try{
+    const r=await callApi({action:'kelulusanList',sessionToken,q:$('lQ')?.value||'',tahunPelajaran:$('lTahun')?.value||'',status:$('lStatusFilter')?.value||''});
+    if(!r?.success){showToast(r?.message||'Data kelulusan gagal dimuat.');return}
+    kelulusanRowsCache=r.data?.rows||[]; renderKelulusanTable(); $('lStatus').textContent=`${kelulusanRowsCache.length} data kelulusan ditemukan.`;
+  }catch(e){console.error(e);showToast('Gagal memuat data kelulusan.')}
+}
+function renderKelulusanTable(){
+  const b=$('lBody');if(!b)return;
+  if(!kelulusanRowsCache.length){b.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted)">Belum ada data.</td></tr>';return}
+  b.innerHTML=kelulusanRowsCache.map((x,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(x.TAHUN_PELAJARAN||'')}</td><td>${escapeHtml(x.NIS||'')}</td><td>${escapeHtml(x.NISN||'')}</td><td><strong>${escapeHtml(x.NAMA||'')}</strong></td><td>${escapeHtml(x.KELAS||'')}</td><td>${escapeHtml(x.STATUS_KELULUSAN||'')}</td><td>${escapeHtml(x.NO_IJAZAH_SKL||'')}</td><td><button class="icon-btn" onclick="editKelulusan('${encodeURIComponent(x.ID_KELULUSAN||'')}')">Edit</button><button class="icon-btn" onclick="deleteKelulusan('${encodeURIComponent(x.ID_KELULUSAN||'')}')">Hapus</button></td></tr>`).join('');
+}
+function fillKelulusanStudent(){
+  const x=kelulusanStudentsCache.find(s=>String(s.NIS)===String($('lNis')?.value)); if(!x)return;
+  $('lNisManual').value=x.NIS||'';$('lNama').value=x.NAMA||'';$('lNisn').value=x.NISN||'';$('lKelas').value=x.KELAS||'6';
+}
+function fillSelect(id,arr,empty='Pilih siswa...'){const s=$(id);if(!s)return;s.innerHTML=`<option value="">${empty}</option>`+arr.map(x=>`<option value="${escapeHtml(x.NIS||'')}">${escapeHtml(x.NIS||'')} — ${escapeHtml(x.NAMA||'')}</option>`).join('')}
+function openKelulusanForm(id=''){
+  kelulusanEditingId=id?decodeURIComponent(id):'';$('kelulusanModal').style.display='flex';$('lModalTitle').textContent=kelulusanEditingId?'Edit Kelulusan':'Tambah Kelulusan';
+  ['lNis','lNisManual','lNama','lNisn','lKelas','lNoIjazah','lLanjut','lKeterangan'].forEach(i=>$(i)&&(($(i).value='')));
+  $('lTahunForm').value=$('lTahun')?.value||'2026/2027';$('lStatusForm').value='LULUS';$('lTanggal').value=new Date().toISOString().slice(0,10);fillSelect('lNis',kelulusanStudentsCache);
+  if(kelulusanEditingId){const x=kelulusanRowsCache.find(r=>String(r.ID_KELULUSAN)===kelulusanEditingId);if(x){$('lNis').value=x.NIS||'';$('lNisManual').value=x.NIS||'';$('lNama').value=x.NAMA||'';$('lNisn').value=x.NISN||'';$('lKelas').value=x.KELAS||'';$('lTahunForm').value=x.TAHUN_PELAJARAN||'';$('lStatusForm').value=x.STATUS_KELULUSAN||'LULUS';$('lTanggal').value=x.TANGGAL_KELULUSAN||'';$('lNoIjazah').value=x.NO_IJAZAH_SKL||'';$('lLanjut').value=x.MELANJUTKAN_KE||'';$('lKeterangan').value=x.KETERANGAN||''}}
+}
+function closeKelulusanForm(){$('kelulusanModal').style.display='none';kelulusanEditingId=''}
+async function saveKelulusan(){
+  const d={ID_KELULUSAN:kelulusanEditingId,NIS:$('lNisManual').value.trim(),NAMA:$('lNama').value.trim(),NISN:$('lNisn').value.trim(),KELAS:$('lKelas').value.trim(),TAHUN_PELAJARAN:$('lTahunForm').value.trim(),STATUS_KELULUSAN:$('lStatusForm').value,TANGGAL_KELULUSAN:$('lTanggal').value,NO_IJAZAH_SKL:$('lNoIjazah').value.trim(),MELANJUTKAN_KE:$('lLanjut').value.trim(),KETERANGAN:$('lKeterangan').value.trim()};
+  if(!d.NIS||!d.NAMA||!d.TAHUN_PELAJARAN){showToast('NIS, nama, dan tahun pelajaran wajib diisi.');return}
+  try{const r=await callApi({action:'kelulusanSave',sessionToken,data:d});if(!r?.success){showToast(r?.message||'Gagal menyimpan kelulusan.');return}showToast(r.message||'Kelulusan tersimpan.');closeKelulusanForm();loadKelulusan()}catch(e){console.error(e);showToast('Gagal menyimpan kelulusan.')}
+}
+function editKelulusan(id){openKelulusanForm(id)}
+async function deleteKelulusan(id){const real=decodeURIComponent(id),x=kelulusanRowsCache.find(r=>String(r.ID_KELULUSAN)===real);if(!x)return;if(!confirm(`Hapus data kelulusan ${x.NAMA||''}?`))return;const r=await callApi({action:'kelulusanDelete',sessionToken,idKelulusan:real});showToast(r?.message||'Selesai');loadKelulusan()}
+function printKelulusan(){printSimpleTable('DAFTAR KELULUSAN','lBody')}
+
+function showPrestasi(btn){
+  setActiveNav(btn||$('prestasiNav'));document.querySelector('.page-title').textContent='Prestasi';$('dashboardHome')?.classList.add('hidden');hideKesiswaanPanelsExcept('prestasiPanel');$('prestasiPanel')?.classList.add('show');$('sidebar')?.classList.remove('open');loadPrestasiMeta();loadPrestasi();
+}
+async function loadPrestasiMeta(){try{const r=await callApi({action:'prestasiMeta',sessionToken});if(r?.success)prestasiStudentsCache=r.data?.students||[]}catch(e){console.error(e)}}
+async function loadPrestasi(){try{const r=await callApi({action:'prestasiList',sessionToken,q:$('pQ')?.value||'',jenis:$('pJenisFilter')?.value||'',tingkat:$('pTingkatFilter')?.value||''});if(!r?.success){showToast(r?.message||'Data prestasi gagal dimuat.');return}prestasiRowsCache=r.data?.rows||[];renderPrestasiTable();$('pStatus').textContent=`${prestasiRowsCache.length} prestasi ditemukan.`}catch(e){console.error(e);showToast('Gagal memuat prestasi.')}}
+function renderPrestasiTable(){const b=$('pBody');if(!b)return;if(!prestasiRowsCache.length){b.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted)">Belum ada data prestasi.</td></tr>';return}b.innerHTML=prestasiRowsCache.map((x,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(x.TANGGAL||'')}</td><td>${escapeHtml(x.NIS||'')}</td><td><strong>${escapeHtml(x.NAMA||'')}</strong></td><td>${escapeHtml(x.NAMA_PRESTASI||'')}</td><td>${escapeHtml(x.JENIS||'')}</td><td>${escapeHtml(x.TINGKAT||'')}</td><td>${escapeHtml(x.PERINGKAT||'')}</td><td><button class="icon-btn" onclick="editPrestasi('${encodeURIComponent(x.ID_PRESTASI||'')}')">Edit</button><button class="icon-btn" onclick="deletePrestasi('${encodeURIComponent(x.ID_PRESTASI||'')}')">Hapus</button></td></tr>`).join('')}
+function fillPrestasiStudent(){const x=prestasiStudentsCache.find(s=>String(s.NIS)===String($('pNis')?.value));if(x){$('pNama').value=x.NAMA||''}}
+function openPrestasiForm(id=''){prestasiEditingId=id?decodeURIComponent(id):'';$('prestasiModal').style.display='flex';$('pModalTitle').textContent=prestasiEditingId?'Edit Prestasi':'Tambah Prestasi';['pNis','pNama','pPrestasi','pPeringkat','pPenyelenggara','pSertifikat','pKeterangan'].forEach(i=>$(i)&&($(i).value=''));$('pTanggal').value=new Date().toISOString().slice(0,10);$('pJenis').value='AKADEMIK';$('pTingkat').value='SEKOLAH';fillSelect('pNis',prestasiStudentsCache);if(prestasiEditingId){const x=prestasiRowsCache.find(r=>String(r.ID_PRESTASI)===prestasiEditingId);if(x){$('pNis').value=x.NIS||'';$('pNama').value=x.NAMA||'';$('pTanggal').value=x.TANGGAL||'';$('pPrestasi').value=x.NAMA_PRESTASI||'';$('pJenis').value=x.JENIS||'AKADEMIK';$('pTingkat').value=x.TINGKAT||'SEKOLAH';$('pPeringkat').value=x.PERINGKAT||'';$('pPenyelenggara').value=x.PENYELENGGARA||'';$('pSertifikat').value=x.NO_SERTIFIKAT||'';$('pKeterangan').value=x.KETERANGAN||''}}}
+function closePrestasiForm(){$('prestasiModal').style.display='none';prestasiEditingId=''}
+async function savePrestasi(){const d={ID_PRESTASI:prestasiEditingId,NIS:$('pNis').value.trim(),NAMA:$('pNama').value.trim(),TANGGAL:$('pTanggal').value,JENIS:$('pJenis').value,NAMA_PRESTASI:$('pPrestasi').value.trim(),TINGKAT:$('pTingkat').value,PERINGKAT:$('pPeringkat').value.trim(),PENYELENGGARA:$('pPenyelenggara').value.trim(),NO_SERTIFIKAT:$('pSertifikat').value.trim(),KETERANGAN:$('pKeterangan').value.trim()};if(!d.NIS||!d.NAMA||!d.NAMA_PRESTASI){showToast('Siswa dan nama prestasi wajib diisi.');return}try{const r=await callApi({action:'prestasiSave',sessionToken,data:d});if(!r?.success){showToast(r?.message||'Gagal menyimpan prestasi.');return}showToast(r.message||'Prestasi tersimpan.');closePrestasiForm();loadPrestasi()}catch(e){console.error(e);showToast('Gagal menyimpan prestasi.')}}
+function editPrestasi(id){openPrestasiForm(id)}
+async function deletePrestasi(id){const real=decodeURIComponent(id),x=prestasiRowsCache.find(r=>String(r.ID_PRESTASI)===real);if(!x)return;if(!confirm(`Hapus prestasi ${x.NAMA||''}?`))return;const r=await callApi({action:'prestasiDelete',sessionToken,idPrestasi:real});showToast(r?.message||'Selesai');loadPrestasi()}
+function printPrestasi(){printSimpleTable('DAFTAR PRESTASI PESERTA DIDIK','pBody')}
+
+function showAlumni(btn){setActiveNav(btn||$('alumniNav'));document.querySelector('.page-title').textContent='Alumni';$('dashboardHome')?.classList.add('hidden');hideKesiswaanPanelsExcept('alumniPanel');$('alumniPanel')?.classList.add('show');$('sidebar')?.classList.remove('open');loadAlumniMeta();loadAlumni()}
+async function loadAlumniMeta(){try{const r=await callApi({action:'alumniMeta',sessionToken});if(r?.success)alumniStudentsCache=r.data?.students||[]}catch(e){console.error(e)}}
+async function loadAlumni(){try{const r=await callApi({action:'alumniList',sessionToken,q:$('aQ')?.value||'',tahunLulus:$('aTahunFilter')?.value||''});if(!r?.success){showToast(r?.message||'Data alumni gagal dimuat.');return}alumniRowsCache=r.data?.rows||[];renderAlumniTable();$('aStatus').textContent=`${alumniRowsCache.length} data alumni ditemukan.`}catch(e){console.error(e);showToast('Gagal memuat alumni.')}}
+function renderAlumniTable(){const b=$('aBody');if(!b)return;if(!alumniRowsCache.length){b.innerHTML='<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted)">Belum ada data alumni.</td></tr>';return}b.innerHTML=alumniRowsCache.map((x,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(x.TAHUN_LULUS||'')}</td><td>${escapeHtml(x.NIS||'')}</td><td>${escapeHtml(x.NISN||'')}</td><td><strong>${escapeHtml(x.NAMA||'')}</strong></td><td>${escapeHtml(x.SEKOLAH_LANJUTAN||'')}</td><td>${escapeHtml(x.KONTAK||'')}</td><td><button class="icon-btn" onclick="editAlumni('${encodeURIComponent(x.ID_ALUMNI||'')}')">Edit</button><button class="icon-btn" onclick="deleteAlumni('${encodeURIComponent(x.ID_ALUMNI||'')}')">Hapus</button></td></tr>`).join('')}
+function fillAlumniStudent(){const x=alumniStudentsCache.find(s=>String(s.NIS)===String($('aNis')?.value));if(x){$('aNisManual').value=x.NIS||'';$('aNisn').value=x.NISN||'';$('aNama').value=x.NAMA||''}}
+function openAlumniForm(id=''){alumniEditingId=id?decodeURIComponent(id):'';$('alumniModal').style.display='flex';$('aModalTitle').textContent=alumniEditingId?'Edit Alumni':'Tambah Alumni';['aNis','aNisManual','aNisn','aNama','aSekolah','aJurusan','aKontak','aAlamat','aKeterangan'].forEach(i=>$(i)&&($(i).value=''));$('aTahunForm').value=$('aTahunFilter')?.value||'2026';fillSelect('aNis',alumniStudentsCache);if(alumniEditingId){const x=alumniRowsCache.find(r=>String(r.ID_ALUMNI)===alumniEditingId);if(x){$('aNisManual').value=x.NIS||'';$('aNisn').value=x.NISN||'';$('aNama').value=x.NAMA||'';$('aTahunForm').value=x.TAHUN_LULUS||'';$('aSekolah').value=x.SEKOLAH_LANJUTAN||'';$('aJurusan').value=x.JURUSAN_KETERANGAN||'';$('aKontak').value=x.KONTAK||'';$('aAlamat').value=x.ALAMAT_SEKARANG||'';$('aKeterangan').value=x.KETERANGAN||''}}}
+function closeAlumniForm(){$('alumniModal').style.display='none';alumniEditingId=''}
+async function saveAlumni(){const d={ID_ALUMNI:alumniEditingId,NIS:$('aNisManual').value.trim(),NISN:$('aNisn').value.trim(),NAMA:$('aNama').value.trim(),TAHUN_LULUS:$('aTahunForm').value.trim(),SEKOLAH_LANJUTAN:$('aSekolah').value.trim(),JURUSAN_KETERANGAN:$('aJurusan').value.trim(),KONTAK:$('aKontak').value.trim(),ALAMAT_SEKARANG:$('aAlamat').value.trim(),KETERANGAN:$('aKeterangan').value.trim()};if(!d.NIS||!d.NAMA||!d.TAHUN_LULUS){showToast('NIS, nama, dan tahun lulus wajib diisi.');return}try{const r=await callApi({action:'alumniSave',sessionToken,data:d});if(!r?.success){showToast(r?.message||'Gagal menyimpan alumni.');return}showToast(r.message||'Alumni tersimpan.');closeAlumniForm();loadAlumni()}catch(e){console.error(e);showToast('Gagal menyimpan alumni.')}}
+function editAlumni(id){openAlumniForm(id)}
+async function deleteAlumni(id){const real=decodeURIComponent(id),x=alumniRowsCache.find(r=>String(r.ID_ALUMNI)===real);if(!x)return;if(!confirm(`Hapus data alumni ${x.NAMA||''}?`))return;const r=await callApi({action:'alumniDelete',sessionToken,idAlumni:real});showToast(r?.message||'Selesai');loadAlumni()}
+function printAlumni(){printSimpleTable('DAFTAR ALUMNI SDN 2 CIHIRUP','aBody')}
+
+function printSimpleTable(title,bodyId){
+  const body=$(bodyId)?.innerHTML||'';const w=window.open('','_blank');if(!w){showToast('Popup cetak diblokir browser.');return}
+  w.document.write(`<html><head><title>${title}</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:6px;font-size:10px}</style></head><body><h2>${title}</h2><p>SDN 2 Cihirup</p><table>${body}</table></body></html>`);w.document.close();w.focus();setTimeout(()=>w.print(),300)
+}
+
 function showKlapper(btn){
+  $('kelulusanPanel')?.classList.remove('show'); $('prestasiPanel')?.classList.remove('show'); $('alumniPanel')?.classList.remove('show');
   $('mutasiPanel')?.classList.remove('show'); $('kenaikanKelasPanel')?.classList.remove('show');setActiveNav(btn||$('klapperNav'));document.querySelector('.page-title').textContent='Buku Klapper';$('dashboardHome')?.classList.add('hidden');$('studentPanel').classList.remove('show');$('bukuPanel').classList.remove('show');$('nilaiKelasPanel').classList.remove('show');$('kehadiranPanel')?.classList.remove('show');$('klapperPanel').classList.add('show');$('sidebar').classList.remove('open');loadKlapper()}
 
 let klapperCache=[];
@@ -1014,9 +1203,11 @@ function renderKlapper(rows){$('klapperTotal').textContent=rows.length;$('klappe
 function printKlapper(){const rows=klapperCache.filter(s=>{const q=$('klapperSearch').value.trim().toLowerCase(),k=$('klapperClassFilter').value,status=$('klapperStatusFilter').value;return (!q||[s.NIS,s.NISN,s.NAMA,s.KELAS,s.TEMPAT_LAHIR].join(' ').toLowerCase().includes(q))&&(!k||normalizeClassClient(s.KELAS)===normalizeClassClient(k))&&(!status||String(s.AKTIF).toUpperCase()===status)});if(!rows.length){showToast('Tidak ada data Klapper untuk dicetak.');return}const html=`<html><head><title>Buku Klapper - SDN 2 Cihirup</title><style>body{font-family:Arial,sans-serif;padding:20px}h1{font-size:20px}p{font-size:12px}table{width:100%;border-collapse:collapse;margin-top:15px}th,td{border:1px solid #333;padding:6px;font-size:10px}th{background:#eee}td:nth-child(4){font-weight:bold}</style></head><body><h1>BUKU KLAPPER PESERTA DIDIK</h1><p>SDN 2 Cihirup</p><table><thead><tr><th>No.</th><th>NIS</th><th>NISN</th><th>Nama Peserta Didik</th><th>JK</th><th>Kelas</th><th>Tempat, Tanggal Lahir</th><th>Status</th></tr></thead><tbody>${rows.map((s,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(s.NIS||'')}</td><td>${escapeHtml(s.NISN||'')}</td><td>${escapeHtml(s.NAMA||'')}</td><td>${escapeHtml(s.JK||'')}</td><td>${escapeHtml(s.KELAS||'')}</td><td>${escapeHtml(s.TEMPAT_LAHIR||'')}${s.TEMPAT_LAHIR?', ':''}${escapeHtml(s.TANGGAL_LAHIR||'')}</td><td>${escapeHtml(s.AKTIF||'')}</td></tr>`).join('')}</tbody></table></body></html>`;const w=window.open('','_blank');if(!w){showToast('Popup cetak diblokir browser.');return}w.document.write(html);w.document.close();w.focus();setTimeout(()=>w.print(),300)}
 
 let khRowsCache=[];function khToday(){return new Date().toISOString().slice(0,10)}function showKehadiran(btn){
+  $('kelulusanPanel')?.classList.remove('show'); $('prestasiPanel')?.classList.remove('show'); $('alumniPanel')?.classList.remove('show');
   $('mutasiPanel')?.classList.remove('show'); $('kenaikanKelasPanel')?.classList.remove('show');setActiveNav(btn||$('kehadiranNav'));document.querySelector('.page-title').textContent='Kehadiran';$('dashboardHome')?.classList.add('hidden');$('studentPanel').classList.remove('show');$('bukuPanel').classList.remove('show');$('nilaiKelasPanel').classList.remove('show');$('klapperPanel').classList.remove('show');$('kehadiranPanel').classList.add('show');$('sidebar').classList.remove('open');const t=$('khTanggal'),m=$('khMulai'),e=$('khSelesai');if(t&&!t.value)t.value=khToday();if(m&&!m.value)m.value=khToday();if(e&&!e.value)e.value=khToday();loadKehadiranMeta()}async function loadKehadiranMeta(){if(!sessionToken){forceLogout();return}try{const r=await callApi({action:'attendanceMeta',sessionToken});if(!r?.success){showToast(r?.message||'Data kelas kehadiran belum dapat dimuat.');return}const d=r.data||{},classes=d.classes||[];const fill=(id,all)=>{const el=$(id);if(!el)return;const old=el.value;el.innerHTML=(all?'<option value="">Semua Kelas</option>':'<option value="">Pilih kelas...</option>')+classes.map(k=>`<option value="${escapeHtml(k)}">Kelas ${escapeHtml(k)}</option>`).join('');if(classes.includes(old))el.value=old};fill('khKelas',false);fill('khRekapKelas',true);$('khStatus').textContent=(d.canWrite?'Anda dapat menginput kehadiran.':'Akses Anda hanya melihat data kehadiran.')+' Pilih tanggal dan kelas.';if(classes.length===1){$('khKelas').value=classes[0];loadKehadiranList()}}catch(e){console.error(e);showToast('Gagal memuat kelas kehadiran.')}}async function loadKehadiranList(){const tanggal=$('khTanggal')?.value,kelas=$('khKelas')?.value;if(!tanggal||!kelas){$('khStatus').textContent='Pilih tanggal dan kelas terlebih dahulu.';return}try{$('khStatus').textContent='⏳ Memuat daftar siswa...';const r=await callApi({action:'attendanceList',sessionToken,tanggal,kelas});if(!r?.success){showToast(r?.message||'Daftar kehadiran gagal dimuat.');return}khRowsCache=(r.data?.rows||[]).map(x=>({...x,STATUS:String(x.STATUS||'H').toUpperCase(),KETERANGAN:x.KETERANGAN||''}));renderKehadiranTable();$('khStatus').textContent='Daftar kehadiran siap diisi.'}catch(e){console.error(e);showToast('Gagal memuat daftar kehadiran.')}}function renderKehadiranTable(){const b=$('khTableBody');if(!b)return;const rows=khRowsCache;$('khTotal').textContent=rows.length;$('khHadir').textContent=rows.filter(r=>r.STATUS==='H').length;$('khIzin').textContent=rows.filter(r=>r.STATUS==='I').length;$('khSakit').textContent=rows.filter(r=>r.STATUS==='S').length;$('khAlpa').textContent=rows.filter(r=>r.STATUS==='A').length;if(!rows.length){b.innerHTML='<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">Tidak ada siswa pada kelas ini.</td></tr>';return}b.innerHTML=rows.map((r,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(r.NIS)}</td><td>${escapeHtml(r.NISN||'')}</td><td><strong>${escapeHtml(r.NAMA)}</strong></td><td>${escapeHtml(r.KELAS)}</td><td><select onchange="changeKehadiranStatus('${encodeURIComponent(r.NIS)}',this.value)"><option value="H" ${r.STATUS==='H'?'selected':''}>H — Hadir</option><option value="I" ${r.STATUS==='I'?'selected':''}>I — Izin</option><option value="S" ${r.STATUS==='S'?'selected':''}>S — Sakit</option><option value="A" ${r.STATUS==='A'?'selected':''}>A — Alpa</option></select></td><td><input value="${escapeHtml(r.KETERANGAN||'')}" oninput="changeKehadiranNote('${encodeURIComponent(r.NIS)}',this.value)" placeholder="Keterangan"></td></tr>`).join('')}function changeKehadiranStatus(enc,v){const n=decodeURIComponent(enc),r=khRowsCache.find(x=>x.NIS===n);if(r)r.STATUS=v;renderKehadiranTable()}function changeKehadiranNote(enc,v){const n=decodeURIComponent(enc),r=khRowsCache.find(x=>x.NIS===n);if(r)r.KETERANGAN=v}function setSemuaKehadiran(st){khRowsCache.forEach(r=>r.STATUS=st);renderKehadiranTable()}async function saveKehadiran(){const tanggal=$('khTanggal')?.value,kelas=$('khKelas')?.value;if(!tanggal||!kelas||!khRowsCache.length){showToast('Pilih tanggal, kelas, dan muat daftar siswa terlebih dahulu.');return}const btn=$('khSaveBtn');if(btn){btn.disabled=true;btn.textContent='MENYIMPAN...'}try{const r=await callApi({action:'attendanceBulkSave',sessionToken,tanggal,kelas,rows:khRowsCache.map(x=>({NIS:x.NIS,STATUS:x.STATUS,KETERANGAN:x.KETERANGAN||''}))});if(!r?.success){showToast(r?.message||'Kehadiran gagal disimpan.');return}showToast(r.message||'Kehadiran berhasil disimpan.');await loadKehadiranList()}catch(e){console.error(e);showToast('Gagal menyimpan kehadiran.')}finally{if(btn){btn.disabled=false;btn.textContent='💾 Simpan Kehadiran'}}}async function loadKehadiranRecap(){const mulai=$('khMulai')?.value,selesai=$('khSelesai')?.value,kelas=$('khRekapKelas')?.value||'';if(!mulai||!selesai){showToast('Isi tanggal mulai dan sampai.');return}try{$('khRecapStatus').textContent='⏳ Mengambil rekap...';const r=await callApi({action:'attendanceRecap',sessionToken,mulai,selesai,kelas});if(!r?.success){showToast(r?.message||'Rekap gagal dimuat.');return}const d=r.data||{},rows=d.rows||[],sum=d.summary||{H:0,I:0,S:0,A:0};$('khRecapStatus').innerHTML=`<span class="kh-badge h">Hadir ${sum.H||0}</span><span class="kh-badge i">Izin ${sum.I||0}</span><span class="kh-badge s">Sakit ${sum.S||0}</span><span class="kh-badge a">Alpa ${sum.A||0}</span>`;const b=$('khRecapBody');b.innerHTML=rows.length?rows.map((x,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(x.NIS)}</td><td><strong>${escapeHtml(x.NAMA)}</strong></td><td>${escapeHtml(x.KELAS)}</td><td>${x.H}</td><td>${x.I}</td><td>${x.S}</td><td>${x.A}</td><td>${x.TOTAL}</td></tr>`).join(''):'<tr><td colspan="9" style="text-align:center;padding:25px;color:var(--muted)">Belum ada data pada rentang tersebut.</td></tr>'}catch(e){console.error(e);showToast('Gagal mengambil rekap kehadiran.')}}function printKehadiran(){if(!khRowsCache.length){showToast('Muat daftar kehadiran terlebih dahulu.');return}const tanggal=$('khTanggal').value,kelas=$('khKelas').value;const rows=khRowsCache.map((r,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(r.NIS)}</td><td>${escapeHtml(r.NAMA)}</td><td>${escapeHtml(r.KELAS)}</td><td>${escapeHtml(r.STATUS)}</td><td>${escapeHtml(r.KETERANGAN||'')}</td></tr>`).join('');const w=window.open('','_blank');if(!w){showToast('Popup cetak diblokir browser.');return}w.document.write(`<html><head><title>Kehadiran - SDN 2 Cihirup</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:6px;font-size:10px}</style></head><body><h1>DAFTAR KEHADIRAN PESERTA DIDIK</h1><p>SDN 2 Cihirup · ${escapeHtml(tanggal)} · Kelas ${escapeHtml(kelas)}</p><table><thead><tr><th>No</th><th>NIS</th><th>Nama</th><th>Kelas</th><th>Status</th><th>Keterangan</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);w.document.close();w.focus();setTimeout(()=>w.print(),300)}
 
 function showNilaiKelas(btn){
+  $('kelulusanPanel')?.classList.remove('show'); $('prestasiPanel')?.classList.remove('show'); $('alumniPanel')?.classList.remove('show');
   $('mutasiPanel')?.classList.remove('show'); $('kenaikanKelasPanel')?.classList.remove('show');setActiveNav(btn||$('nilaiKelasNav'));document.querySelector('.page-title').textContent='Nilai Per Kelas';$('dashboardHome')?.classList.add('hidden');$('studentPanel').classList.remove('show');$('bukuPanel').classList.remove('show');$('kehadiranPanel')?.classList.remove('show');$('nilaiKelasPanel').classList.add('show');$('sidebar').classList.remove('open');loadNilaiKelasMeta()}
 
 let nilaiKelasMetaCache=null;
