@@ -85,6 +85,10 @@
 @media(max-width:900px){.au-grid{grid-template-columns:1fr 1fr}.au-toolbar{flex-direction:column}}
 @media(max-width:600px){.au-grid{grid-template-columns:1fr}}
 
+
+/* ===== FIX DISPLAY SARANA & PRASARANA ===== */
+#inventarisPanel,#ruangPanel,#pengadaanPanel,#penghapusanPanel{display:none!important}
+#inventarisPanel.show,#ruangPanel.show,#pengadaanPanel.show,#penghapusanPanel.show{display:block!important}
 </style><style>
 .buku-profile{display:flex;align-items:center;gap:13px}.buku-avatar{width:52px;height:52px;border-radius:14px;background:var(--light);color:var(--primary);display:grid;place-items:center;font-size:21px;font-weight:900;flex:none}.buku-profile>div:nth-child(2){min-width:0}.buku-status{margin-left:auto;background:var(--light);color:var(--primary);border-radius:999px;padding:6px 10px;font-size:9px;font-weight:900;white-space:nowrap}.buku-note{border:1px dashed var(--border);background:#F7FAF9;border-radius:12px;padding:12px 14px;font-size:10px;color:var(--muted);line-height:1.5}.buku-note strong{color:var(--text)}.buku-error{margin:12px 0;padding:12px 14px;border:1px solid #f1c7c7;background:#fff5f5;border-radius:10px;color:#9b2c2c;font-size:11px;line-height:1.5}.buku-success{margin:12px 0;padding:10px 14px;border:1px solid #cce8dc;background:#f3fbf7;border-radius:10px;color:#146c4a;font-size:11px}.buku-debug{margin-top:8px;font-family:Consolas,monospace;font-size:10px;word-break:break-word}
 @media(max-width:600px){.buku-status{margin-left:0}.buku-profile{align-items:flex-start;flex-wrap:wrap}}
@@ -1357,7 +1361,7 @@ async function saveNotulen(){const d={ID_NOTULEN:adminEdit.no,TANGGAL:adminVal('
 
 const spCaches={inventaris:[],ruang:[],pengadaan:[],penghapusan:[]};let spEdit={key:'',id:''};
 function hideSPPanelsExcept(keep){['inventarisPanel','ruangPanel','pengadaanPanel','penghapusanPanel'].forEach(id=>{if(id!==keep)$(id)?.classList.remove('show')})}
-function showSPPanel(id,btn,title,loader){hideKesiswaanPanelsExcept('');hideAdminPanelsExcept('');hideSPPanelsExcept(id);['ptkPanel','ptkAttendancePanel','ptkLeavePanel','ptkDocumentPanel'].forEach(x=>$(x)?.classList.remove('show'));$(id)?.classList.add('show');$('dashboardHome')?.classList.add('hidden');setActiveNav(btn);document.querySelector('.page-title').textContent=title;$('sidebar')?.classList.remove('open');loader?.()}
+function showSPPanel(id,btn,title,loader){hideKesiswaanPanelsExcept('');hideAdminPanelsExcept('');hideSPPanelsExcept(id);['ptkPanel','ptkAttendancePanel','ptkLeavePanel','ptkDocumentPanel'].forEach(x=>$(x)?.classList.remove('show'));['inventarisPanel','ruangPanel','pengadaanPanel','penghapusanPanel'].forEach(x=>{if(x!==id)$(x)?.classList.remove('show')});$(id)?.classList.add('show');$('dashboardHome')?.classList.add('hidden');setActiveNav(btn);document.querySelector('.page-title').textContent=title;$('sidebar')?.classList.remove('open');loader?.()}
 function showInventaris(btn){showSPPanel('inventarisPanel',btn||$('inventarisNav'),'Inventaris Barang',loadInventaris)}
 function showRuang(btn){showSPPanel('ruangPanel',btn||$('ruangNav'),'Gedung / Ruang',loadRuang)}
 function showPengadaan(btn){showSPPanel('pengadaanPanel',btn||$('pengadaanNav'),'Pengadaan',loadPengadaan)}
