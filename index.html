@@ -79,8 +79,8 @@
 
 
 /* ADMINISTRASI UMUM */
-#suratMasukPanel,#suratKeluarPanel,#agendaPanel,#bukuTamuPanel,#notulenPanel{display:none}
-#suratMasukPanel.show,#suratKeluarPanel.show,#agendaPanel.show,#bukuTamuPanel.show,#notulenPanel.show{display:block}
+#suratMasukPanel,#suratKeluarPanel,#agendaPanel,#bukuTamuPanel,#notulenPanel,#ptkPanel,#ptkAttendancePanel,#ptkLeavePanel,#ptkDocumentPanel{display:none!important}
+#suratMasukPanel.show,#suratKeluarPanel.show,#agendaPanel.show,#bukuTamuPanel.show,#notulenPanel.show,#ptkPanel.show,#ptkAttendancePanel.show,#ptkLeavePanel.show,#ptkDocumentPanel.show{display:block!important}
 .au-toolbar{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}.au-toolbar h2{margin:0 0 6px}.au-toolbar p{margin:0;color:var(--muted)}.au-actions{display:flex;gap:8px;flex-wrap:wrap}.au-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:15px 0}.au-field{display:flex;flex-direction:column;gap:6px}.au-field label{font-weight:700;font-size:13px}.au-field input,.au-field select,.au-field textarea{width:100%;box-sizing:border-box;padding:10px 11px;border:1px solid #d7dde7;border-radius:10px;background:#fff}.au-status{margin:12px 0;color:var(--muted)}.au-table-wrap{overflow:auto;margin-top:12px}.au-table{width:100%;border-collapse:collapse;min-width:900px}.au-table th,.au-table td{border-bottom:1px solid #e8edf3;padding:10px 8px;text-align:left;font-size:13px;vertical-align:top}.au-table th{background:#f7f9fc;font-weight:800}.au-modal{max-width:920px!important;width:94%}
 @media(max-width:900px){.au-grid{grid-template-columns:1fr 1fr}.au-toolbar{flex-direction:column}}
 @media(max-width:600px){.au-grid{grid-template-columns:1fr}}
@@ -1350,7 +1350,7 @@ function openNotulenForm(id=''){adminEdit.no=id?decodeURIComponent(id):'';$('not
 async function saveNotulen(){const d={ID_NOTULEN:adminEdit.no,TANGGAL:adminVal('noTanggal'),WAKTU:adminVal('noWaktu'),JUDUL_RAPAT:adminVal('noJudul'),PIMPINAN:adminVal('noPimpinan'),NOTULIS:adminVal('noNotulis'),TEMPAT:adminVal('noTempat'),PESERTA:adminVal('noPeserta'),PEMBAHASAN:adminVal('noPembahasan'),HASIL_KEPUTUSAN:adminVal('noHasil'),TINDAK_LANJUT:adminVal('noTindakLanjut')};if(!d.TANGGAL||!d.JUDUL_RAPAT||!d.HASIL_KEPUTUSAN){showToast('Tanggal, judul rapat, dan hasil/keputusan wajib diisi.');return}const r=await callApi({action:'notulenSave',sessionToken,data:d});if(!r?.success){showToast(r?.message||'Gagal menyimpan.');return}showToast(r.message);closeAdminModal('notulenModal');loadNotulen()}
 
 function kpCanWrite(){return ['ADMIN','KEPALA_SEKOLAH'].includes(String(currentUser?.role||'').toUpperCase())}
-function showKepegawaianPanel(id,btn,title,loader){hideKesiswaanPanelsExcept('');hideAdminPanelsExcept(id);$(id)?.classList.add('show');$('dashboardHome')?.classList.add('hidden');setActiveNav(btn);document.querySelector('.page-title').textContent=title;$('sidebar')?.classList.remove('open');loader?.()}
+function showKepegawaianPanel(id,btn,title,loader){hideKesiswaanPanelsExcept('');hideAdminPanelsExcept(id);['ptkPanel','ptkAttendancePanel','ptkLeavePanel','ptkDocumentPanel'].forEach(x=>{if(x!==id)$(x)?.classList.remove('show')});$(id)?.classList.add('show');$('dashboardHome')?.classList.add('hidden');setActiveNav(btn);document.querySelector('.page-title').textContent=title;$('sidebar')?.classList.remove('open');loader?.()}
 function showPTK(btn){showKepegawaianPanel('ptkPanel',btn||$('ptkNav'),'Data PTK',loadPTK)}
 function showPTKAttendance(btn){showKepegawaianPanel('ptkAttendancePanel',btn||$('ptkAttendanceNav'),'Kehadiran PTK',loadPTKAttendance);loadPTKMeta()}
 function showPTKLeave(btn){showKepegawaianPanel('ptkLeavePanel',btn||$('ptkLeaveNav'),'Cuti / Izin PTK',loadPTKLeave);loadPTKMeta()}
